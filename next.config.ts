@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.microcms-assets.io",
+        hostname: "saoatptddmtnkthvupzy.supabase.co",
       },
     ],
   },

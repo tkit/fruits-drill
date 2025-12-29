@@ -9,12 +9,12 @@ import (
 
 func TestLoad_Env(t *testing.T) {
 	// Setup env
-	os.Setenv("R2_BUCKET_NAME", "test-bucket")
-	defer os.Unsetenv("R2_BUCKET_NAME")
+	os.Setenv("SUPABASE_BUCKET_NAME", "test-bucket")
+	defer os.Unsetenv("SUPABASE_BUCKET_NAME")
 
 	cfg, err := Load()
 	assert.NoError(t, err)
-	assert.Equal(t, "test-bucket", cfg.R2BucketName)
+	assert.Equal(t, "test-bucket", cfg.SupabaseBucketName)
 }
 
 func TestLoadFromFile(t *testing.T) {
@@ -26,16 +26,14 @@ func TestLoadFromFile(t *testing.T) {
 	defer os.Remove(f.Name())
 
 	content := `
-r2_bucket_name: "yaml-bucket"
-microcms_service_domain: "example"
+supabase_bucket_name: "yaml-bucket"
+supabase_url: "https://example.supabase.co"
 `
 	f.WriteString(content)
 	f.Close()
 
 	cfg, err := LoadFromFile(f.Name())
 	assert.NoError(t, err)
-	assert.Equal(t, "yaml-bucket", cfg.R2BucketName)
-	assert.Equal(t, "example", cfg.MicroCMSServiceDomain)
+	assert.Equal(t, "yaml-bucket", cfg.SupabaseBucketName)
+	assert.Equal(t, "https://example.supabase.co", cfg.SupabaseURL)
 }
-
-

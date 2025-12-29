@@ -2,23 +2,24 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/spf13/cobra"
-	"github.com/tkit/fruits-drill/tools/internal/cms"
 	"github.com/tkit/fruits-drill/tools/internal/config"
+	"github.com/tkit/fruits-drill/tools/internal/repository"
 	"github.com/tkit/fruits-drill/tools/internal/thumbnail"
-	"github.com/tkit/fruits-drill/tools/internal/uploader"
 )
 
 var registerCmd = &cobra.Command{
 	Use:     "register [files...]",
 	Aliases: []string{"draft"},
 	Short:   "Upload and register PDF drills",
-	Long:    `Scans for PDF files (or accepts file arguments), generates thumbnails, uploads to R2, and registers to MicroCMS as Draft.`,
+	Long:    `Scans for PDF files (or accepts file arguments), generates thumbnails, uploads to Supabase Storage, and registers to Supabase DB.`,
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		// 1. Load Config
@@ -38,15 +39,8 @@ var registerCmd = &cobra.Command{
 
 		// 2. Initialize Components
 		ctx := context.Background()
-		r2Uploader, err := uploader.NewR2Uploader(ctx, cfg)
-		if err != nil {
-			log.Fatalf("Failed to initialize R2 uploader: %v", err)
-		}
+		repo := repository.NewSupabaseRepository(cfg)
 		thumbGen := thumbnail.NewGenerator()
-		cmsClient, err := cms.NewClient(cfg)
-		if err != nil {
-			log.Fatalf("Failed to initialize CMS client: %v", err)
-		}
 
 		// 3. Process Files from Args
 		var pdfFiles []string
@@ -76,13 +70,15 @@ var registerCmd = &cobra.Command{
 		if tagsRaw != "" {
 			split := strings.Split(tagsRaw, ",")
 			for _, s := range split {
-				tags = append(tags, strings.TrimSpace(s))
+				if trimmed := strings.TrimSpace(s); trimmed != "" {
+					tags = append(tags, trimmed)
+				}
 			}
 		}
 
 		// 4. Process Loop
 		for _, pdfPath := range pdfFiles {
-			processFile(ctx, pdfPath, r2Uploader, thumbGen, cmsClient, tags, descRaw)
+			processFile(ctx, pdfPath, repo, thumbGen, tags, descRaw)
 		}
 	},
 }
@@ -93,11 +89,7 @@ func init() {
 	registerCmd.Flags().StringVar(&descRaw, "desc", "", "Description text")
 }
 
-// Logic copied from root.go (and improved slightly for context usage if needed)
-// Note: processFile helpers and others should optionally be shared or duplicated.
-// For now, I'll put processFile here as it belongs to registration logic.
-
-func processFile(ctx context.Context, pdfPath string, r2 *uploader.R2Uploader, tb *thumbnail.Generator, c *cms.Client, tags []string, desc string) {
+func processFile(ctx context.Context, pdfPath string, repo *repository.SupabaseRepository, tb *thumbnail.Generator, tags []string, desc string) {
 	log.Printf("Processing: %s", pdfPath)
 
 	// Thumbnail
@@ -109,9 +101,14 @@ func processFile(ctx context.Context, pdfPath string, r2 *uploader.R2Uploader, t
 	}
 	defer os.Remove(thumbPath)
 
+	// Generate UUID for storage keys
+	fileUUID := uuid.New().String()
+
 	// Upload PDF
-	log.Println("  -> Uploading PDF to R2...")
-	pdfURL, err := r2.UploadFile(ctx, pdfPath, "drills/pdf")
+	log.Println("  -> Uploading PDF to Supabase Storage...")
+	// Use UUID for storage key to avoid character issues
+	pdfKey := fmt.Sprintf("pdf/%s.pdf", fileUUID)
+	pdfURL, err := repo.UploadFile(ctx, pdfPath, pdfKey)
 	if err != nil {
 		log.Printf("  [ERROR] Failed to upload PDF: %v", err)
 		return
@@ -119,8 +116,9 @@ func processFile(ctx context.Context, pdfPath string, r2 *uploader.R2Uploader, t
 	log.Printf("     %s", pdfURL)
 
 	// Upload Thumbnail
-	log.Println("  -> Uploading Thumbnail to MicroCMS...")
-	thumbURL, err := c.UploadMedia(thumbPath)
+	log.Println("  -> Uploading Thumbnail to Supabase Storage...")
+	thumbKey := fmt.Sprintf("thumbnail/%s.png", fileUUID)
+	thumbURL, err := repo.UploadFile(ctx, thumbPath, thumbKey)
 	if err != nil {
 		log.Printf("  [ERROR] Failed to upload thumbnail: %v", err)
 		return
@@ -128,23 +126,14 @@ func processFile(ctx context.Context, pdfPath string, r2 *uploader.R2Uploader, t
 	log.Printf("     %s", thumbURL)
 
 	// Register
-	log.Println("  -> Registering to MicroCMS...")
+	log.Println("  -> Registering to Supabase DB...")
 	title := strings.TrimSuffix(filepath.Base(pdfPath), filepath.Ext(pdfPath))
 
-	content := cms.DrillContent{
-		Title:       title,
-		Thumbnail:   thumbURL,
-		PDF:         pdfURL,
-		Tags:        tags,
-		Description: desc,
-	}
-
-	id, err := c.RegisterDrill(content)
+	id, err := repo.RegisterDrill(ctx, title, desc, pdfURL, thumbURL, tags)
 	if err != nil {
 		log.Printf("  [ERROR] Failed to register: %v", err)
 		return
 	}
 
-	log.Printf("  [SUCCESS] Draft created. Content ID: %s", id)
-	log.Printf("  To publish this item, run: fruits-cli publish %s", id)
+	log.Printf("  [SUCCESS] Drill registered. ID: %s", id)
 }

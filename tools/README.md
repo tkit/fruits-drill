@@ -1,11 +1,10 @@
 # Fruits Drill Management CLI Tool
 
 ## 概要
-PDFドリルファイルをアップロードし、サムネイル生成とCMS登録を自動化するCLIツールです。
-Version 2.0 では設定ファイル読み込みやPublish機能が追加されました。
+PDFドリルファイルをアップロードし、サムネイル生成とSupabaseへのデータ登録（DB登録 + Storageアップロード）を自動化するCLIツールです。
 
 ## 前提条件
-* **Go 1.22+**
+* **Go 1.25+**
 * **ImageMagick** (インストール済みでパスが通っていること)
     * Mac: `brew install imagemagick ghostscript` (※PDF処理にGhostscriptが必須です)
     * Windows: `magick` コマンドが使える状態
@@ -13,65 +12,60 @@ Version 2.0 では設定ファイル読み込みやPublish機能が追加され�
 ## 使い方
 
 ### ビルド
+Makefileがルートにあるため、ルートディレクトリから以下を実行するのが簡単です。
+```bash
+make go-build
+```
+または `tools` ディレクトリ内で:
 ```bash
 cd tools
-go build -o fruits-cli
+go build -o ../bin/fruits-cli main.go
 ```
 
 ### 設定
-設定は **環境変数** または **Configファイル (YAML)** で指定可能です。
+設定は **環境変数 (.env / .env.tools)** または **Configファイル (YAML)** で指定可能です。
 
-**環境変数 (.env.tools):**
+**環境変数 (.env):**
+`tools/.env` ファイルを作成して以下の内容を記述します。
 ```bash
-R2_ACCOUNT_ID=...
-MICROCMS_MANAGEMENT_API_KEY=...
-# (他、--help で確認可能)
+SUPABASE_URL=https://<your-project-id>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+SUPABASE_BUCKET_NAME=drills
 ```
 
 **Configファイル (config.yaml):**
+実行時に `-c config.yaml` で指定可能です。
 ```yaml
-r2_account_id: "..."
-r2_access_key_id: "..."
-r2_secret_access_key: "..."
-r2_bucket_name: "..."
-r2_public_domain: "..." # Optional
-microcms_service_domain: "..."
-microcms_management_api_key: "..."
+supabase_url: "https://<your-project-id>.supabase.co"
+supabase_service_role_key: "<your-service-role-key>"
+supabase_bucket_name: "drills"
 ```
 
 ### コマンド
 
 #### 1. ヘルプの表示
 ```bash
-./fruits-cli --help
+./bin/fruits-cli --help
 ```
 
-#### 2. ドリルの一括登録 (下書き登録)
-指定したPDFファイルをアップロード・下書き登録を行います。
-サブコマンド `register` またはエイリアス `draft` を使用します。
+#### 2. ドリルの一括登録
+指定したPDFファイルをスキャンし、サムネイル生成・アップロード・DB登録を一括で行います。
+コマンドは `register` またはエイリアス `draft` を使用します（現在の実装では登録＝即座にDB挿入されます）。
 
 ```bash
-# ファイル指定 (registerコマンド)
-./fruits-cli register -c config.yaml drill1.pdf drill2.pdf
-
-# ワイルドカード指定 (draftエイリアスを使用)
-./fruits-cli draft -c config.yaml ./pdfs/*.pdf
+# 基本的な使い方
+./bin/fruits-cli register ./sample/drill.pdf
 
 # メタデータ指定
-./fruits-cli draft -c config.yaml -tags "算数,小4" -desc "4年生ドリル" ./pdfs/*.pdf
+./bin/fruits-cli register -tags "算数,小4" -desc "4年生向けドリル" ./sample/*.pdf
 ```
-* `-tags`: カンマ区切りでタグを指定します。
+
+* `-tags`: カンマ区切りでタグを指定します。存在しないタグは自動的に作成されます。
 * `-desc`: 説明文を指定します。
 
 **実行結果:**
-成功すると、以下のように **Content ID** が表示されます。
+成功すると、以下のように **Content ID (UUID)** が表示されます。
 ```text
-[SUCCESS] Draft created. Content ID: 12345xxxxx
-To publish this item, run: ./fruits-cli publish 12345xxxxx
+[SUCCESS] Drill registered. ID: 40ad54b0-d013-4ad0-8dc8-f1f62999e5b3
 ```
 
-#### 3. 記事の公開 (Publish)
-登録済みのコンテンツIDを指定して、記事を公開状態にします。
-```bash
-./fruits-cli publish <CONTENT_ID> -c config.yaml
-```

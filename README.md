@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🍎 ふるーつドリル (Fruits Drill)
 
-## Getting Started
+小学生向けの問題集（ドリル）を無料配布するWebサイト「ふるーつドリル」のモノレポです。
+保護者をターゲットに、フルーツのような「彩り」と「実り」をテーマにした親しみやすいデザインを目指しています。
 
-First, run the development server:
+## 🚀 Tech Stack
+
+- **Frontend**: Next.js (App Router), TypeScript, Tailwind CSS
+- **UI Components**: shadcn/ui, Lucide React
+- **Backend / DB**: Supabase (PostgreSQL, Storage)
+- **Tooling**: Go (CLI for content management)
+
+## 📁 Project Structure
+
+- `src/`: Next.js Web Application
+- `tools/`: Management CLI Tool (Go)
+- `docs/`: Specifications and documentation
+
+## 🛠️ Getting Started
+
+### 1. Prerequisites
+
+- Node.js 18+
+- Go 1.25+
+- ImageMagick (for CLI thumbnail generation)
+- Supabase Project
+
+### 2. Environment Setup
+
+**Web App (`.env.local`)**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**CLI Tool (`tools/.env`)**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+SUPABASE_URL=https://<project>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+SUPABASE_BUCKET_NAME=drills
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Run Development Server
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Manage Content (CLI)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See [tools/README.md](tools/README.md) for details on how to register drill PDFs.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+make go-build
+./bin/fruits-cli register ./sample/drill.pdf
+```

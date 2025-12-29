@@ -1,11 +1,17 @@
-import type { MicroCMSImage, MicroCMSDate, MicroCMSContentId } from "microcms-js-sdk";
-
 export type Drill = {
+    id: string;
     title: string;
-    thumbnail: MicroCMSImage;
+    thumbnail: {
+        url: string;
+        height?: number;
+        width?: number;
+    };
     pdf: string; // URL string
     tags?: string[];
     description?: string;
-} & MicroCMSContentId & MicroCMSDate;
+    publishedAt?: string;
+    revisedAt?: string;
+};
 
 export type Tag = string;
+

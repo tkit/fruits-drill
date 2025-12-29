@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "fruits-cli",
 	Short: "Upload and register PDF drills",
-	Long:  `Scans for PDF files (or accepts file arguments), generates thumbnails, uploads to R2, and registers to MicroCMS as Draft.`,
+	Long:  `Scans for PDF files (or accepts file arguments), generates thumbnails, uploads to Supabase Storage, and registers to Supabase DB.`,
 }
 
 func Execute() {
@@ -27,6 +28,7 @@ func Execute() {
 }
 
 func init() {
+	// Load .env file if it exists
+	_ = godotenv.Load()
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "", "Path to config file")
 }
-

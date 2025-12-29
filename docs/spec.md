@@ -12,8 +12,7 @@
 * **Frontend**: Next.js (App Router), TypeScript
 * **Styling**: Tailwind CSS, shadcn/ui (Base Color: Slate)
 * **Icons**: **Lucide React**
-* **CMS**: MicroCMS (Headless CMS) - コンテンツ・タグ管理
-* **Storage**: **Cloudflare R2** - PDFファイル配信 (AWS S3互換)
+* **Database / CMS / Storage**: **Supabase** (PostgreSQL / Storage)
 * **Deployment**: Vercel
 * **Admin Tool**: **Go (Golang)**
 
@@ -24,21 +23,34 @@
 * `src/features/drills`: ドリル関連のドメインロジック・コンポーネント (api, components, types)
 * `src/components/ui`: shadcn/ui コンポーネント
 * `src/components/layout`: Header (ロゴ表示), Footer など
-* `src/lib/microcms.ts`: MicroCMSクライアント初期化
+* `src/lib/supabase.ts`: Supabaseクライアント初期化
 * `tools/`: 管理用CLIツールのソースコード
 
-## 4. データ設計 (MicroCMS Schema)
+## 4. データ設計 (Supabase Database Schema)
 
-MicroCMSにて、エンドポイント名 `drills` で以下のAPIが定義されている前提とする。
-**※ フロントエンドの型定義およびGoツールの構造体は、このスキーマに従うこと。**
+以下のテーブル構造でデータを管理する。
 
-| フィールドID | 必須 | MicroCMS上の型 | 役割 |
+### `drills` テーブル
+| カラム名 | 型 | 制約 | 備考 |
 | --- | --- | --- | --- |
-| `title` | 必須 | テキスト | 問題集のタイトル |
-| `thumbnail` | 必須 | 画像 | 一覧表示用 (※CLIが自動登録) |
-| `pdf` | 必須 | **テキスト** | **PDFファイルの公開URL文字列** (※CLIが自動登録) |
-| `tags` | 任意 | セレクト(複数) | `国語`, `算数`, `低学年`, `高学年` 等 |
-| `description` | 任意 | テキストエリア | 補足説明 |
+| `id` | uuid | PK, default `gen_random_uuid()` | |
+| `title` | text | NOT NULL | |
+| `description` | text | | |
+| `pdf_url` | text | NOT NULL | Supabase Storageの公開URL |
+| `thumbnail_url` | text | NOT NULL | Supabase Storageの公開URL |
+| `created_at` | timestamp | | |
+
+### `tags` テーブル
+| カラム名 | 型 | 制約 | 備考 |
+| --- | --- | --- | --- |
+| `id` | uuid | PK, default `gen_random_uuid()` | |
+| `name` | text | NOT NULL, UNIQUE | タグ名 (小1, 算数など) |
+
+### `drill_tags` テーブル (中間テーブル)
+| カラム名 | 型 | 制約 | 備考 |
+| --- | --- | --- | --- |
+| `drill_id` | uuid | FK(`drills.id`), PK複合 | |
+| `tag_id` | uuid | FK(`tags.id`), PK複合 | |
 
 ## 5. 実装詳細要件
 
@@ -48,7 +60,6 @@ MicroCMSにて、エンドポイント名 `drills` で以下のAPIが定義さ�
 * アイコンには `Lucide React` の `Apple` コンポーネントを使用する。
 * 「ふるーつ」はひらがな、「ドリル」はカタカナ表記。
 
-
 * **フォント**: `next/font/google` で **`Zen Maru Gothic`** (Weight: 500, 700) を導入し、全域に適用する。
 * **カラーパレット**:
 * **Primary**: `#e11d48` (Rose-600)
@@ -56,23 +67,17 @@ MicroCMSにて、エンドポイント名 `drills` で以下のAPIが定義さ�
 * **Accent**: `#f59e0b` (Amber-500)
 * **Radius**: `0.75rem` (フルーツの丸みを意識)。
 
-
-
 ### 5.2. ナビゲーションとルーティング
 
 * **一覧画面 (`/`)**:
 * ドリルをカード形式でグリッド表示する。
-* **タグフィルタリングUI**: APIから取得した `tags` を集計し、動的にボタンを生成する。
-
+* **タグフィルタリングUI**: DBから取得したドリルデータを元に動的にフィルタリングまたはタグ一覧を表示する。
 
 * **詳細モーダル (Intercepting Routes)**:
 * `(.)drills/[id]` を利用してモーダル表示する。
 
-
 * **詳細ページ (`/drills/[id]`)**:
 * 直リンクやリロード時は、通常の詳細ページを表示する。
-
-
 
 ### 5.3. 詳細画面（モーダル/ページ共通）
 
@@ -89,32 +94,26 @@ MicroCMSにて、エンドポイント名 `drills` で以下のAPIが定義さ�
 2. **サムネイル生成**:
 * PDFの1ページ目を画像（JPG/PNG）として抽出・保存する。
 * 外部コマンド (`imagemagick`) を使用する。
-3. **Cloudflare R2 (S3) アップロード**:
-* PDFファイルをR2バケットにアップロードし、公開URLを取得する。
-4. **MicroCMS 登録**:
-* サムネイル画像を Management API (Media) にアップロードする。
-* PDFの公開URLとサムネイル画像URLを使って、記事データを作成・登録する。
-* 記事のステータスは「下書き (DRAFT)」とし、標準出力に **Content ID** を表示する。
+3. **Supabase Storage アップロード**:
+* PDFファイルと生成したサムネイル画像を `drills` バケットにアップロードする。
+* ファイル名由来のトラブルを避けるため、パスにはUUIDを使用する (`pdf/<uuid>.pdf`, `thumbnail/<uuid>.png`)。
+4. **Supabase Database 登録**:
+* アップロード済みファイルのURLを使用し、`drills`, `tags`, `drill_tags` テーブルにデータを登録する。
+* **タグの自動登録**: 指定されたタグが存在しない場合は自動的に作成 (`Upsert`) する機能を持つ。
 5. **設定とオプション**:
 * **Configファイル**: `-c config.yaml` で設定ファイルを読み込み可能とする。
-* **Publish**: `-publish <CONTENT_ID>` オプションで、特定の下書き記事を公開(Publish)可能とする。
 * **Tags**: `-tags "tag1,tag2"` オプションでタグを指定可能とする。
 * **Description**: `-desc "text"` オプションで説明文を指定可能とする。
 * **Help**: `-help` または `--help` で使い方を表示する。
 
+## 6. 環境変数 (.env.local / tools/.env)
 
+* フロントエンド用 (.env.local):
+* `NEXT_PUBLIC_SUPABASE_URL`
+* `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-## 6. 環境変数 (.env.local / .env.tools)
+* CLIツール用 (tools/.env):
+* `SUPABASE_URL`
+* `SUPABASE_SERVICE_ROLE_KEY` (安全な場所でのみ使用)
+* `SUPABASE_BUCKET_NAME` (例: `drills`)
 
-* フロントエンド用:
-* `MICROCMS_SERVICE_DOMAIN`
-* `MICROCMS_API_KEY`
-
-
-* CLIツール用:
-* `R2_ACCOUNT_ID`
-* `R2_ACCESS_KEY_ID`
-* `R2_SECRET_ACCESS_KEY`
-* `R2_BUCKET_NAME`
-* `R2_PUBLIC_DOMAIN` (公開用ドメイン)
-* `MICROCMS_MANAGEMENT_API_KEY` (※書き込み権限のあるキー)

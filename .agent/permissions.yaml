@@ -1,0 +1,57 @@
+terminal:
+  # policy: auto
+  # - allow リストにマッチするコマンド: ユーザー確認なしで「自動実行」
+  # - deny リストにマッチするコマンド: AIによる実行を「禁止」（または強い警告）
+  # - どちらにもマッチしないコマンド: ユーザーに「実行確認」を求める
+  policy: auto
+
+  allow:
+    # --- 基本的なファイル操作・確認 (副作用なし) ---
+    - "ls"
+    - "ls -*"
+    - "pwd"
+    - "cat *"
+    - "grep *"
+    - "find *"
+    - "echo *"
+
+    # --- Git (参照・ステータス確認のみ) ---
+    - "git status"
+    - "git diff"
+    - "git diff *"
+    - "git log"
+    - "git log *"
+    - "git show *"
+    - "git branch"
+    - "git branch -*"
+
+    # --- Go 開発 (テスト・モジュール管理・フォーマット) ---
+    - "go test *"
+    - "go vet *"
+    - "go fmt *"
+    - "go mod tidy"
+    - "go mod verify"
+    - "go build *"
+
+    # --- Makefile (よく使う開発タスク) ---
+    - "make"
+    - "make help"
+    - "make build"
+    - "make test"
+    - "make vet"
+
+    # --- Node.js / Frontend (チェック系) ---
+    - "npm run lint"
+    - "npm run type-check"
+    # ※ npm run dev 等の長時間実行コマンドは、停止制御が必要なため
+    #   あえて手動確認に残すか、必要ならここに追加してください。
+
+  deny:
+    # --- 破壊的操作・重要な変更 ---
+    # これらは事故を防ぐため、常に確認を求めるか実行をブロックします
+    - "rm -rf /"       # システム破壊防止
+    - "rm -rf *"       # 一括削除は確認必須
+    - "git push"       # 勝手なプッシュ防止
+    - "git push *"
+    - "git commit *"   # コミットメッセージの確認のため
+    - "git clean -*"   # 未追跡ファイルの削除防止
