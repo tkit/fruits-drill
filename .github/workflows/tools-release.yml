@@ -2,9 +2,9 @@ name: Tools Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'tools/**'
+      - "tools/**"
 
 permissions:
   contents: write
@@ -22,7 +22,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.22'
+          go-version: "1.22"
 
       - name: Generate Tag
         id: tag
@@ -32,7 +32,7 @@ jobs:
 
       - name: Build (Mac/ARM64)
         run: GOOS=darwin GOARCH=arm64 go build -o ../dist/fruits-cli-darwin-arm64
-      
+
       - name: Build (Windows/AMD64)
         run: GOOS=windows GOARCH=amd64 go build -o ../dist/fruits-cli-windows-amd64.exe
 

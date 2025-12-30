@@ -4,14 +4,10 @@ import { TagFilter } from "@/features/drills/components/TagFilter";
 import {
   getAllTags,
   filterDrills,
-  calculateDisabledTags
+  calculateDisabledTags,
 } from "@/features/drills/utils/filterDrills";
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ tags?: string }>;
-}) {
+export default async function Home({ searchParams }: { searchParams: Promise<{ tags?: string }> }) {
   const params = await searchParams;
   const drills = await getDrills();
 
@@ -34,17 +30,14 @@ export default async function Home({
           楽しく学べる！ふるーつドリル
         </h1>
         <p className="text-lg text-gray-600">
-          小学生向けの無料プリント学習サイトです。<br />
+          小学生向けの無料プリント学習サイトです。
+          <br />
           毎日の学習習慣づくりに、ぜひご活用ください。
         </p>
       </section>
 
       <section className="flex justify-center">
-        <TagFilter
-          allTags={allTags}
-          selectedTags={selectedTags}
-          disabledTags={disabledTags}
-        />
+        <TagFilter allTags={allTags} selectedTags={selectedTags} disabledTags={disabledTags} />
       </section>
 
       <section>

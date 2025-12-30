@@ -1,32 +1,40 @@
 # Fruits Drill Management CLI Tool
 
 ## 概要
+
 PDFドリルファイルをアップロードし、サムネイル生成とSupabaseへのデータ登録（DB登録 + Storageアップロード）を自動化するCLIツールです。
 
 ## 前提条件
-* **Go 1.25+**
-* **ImageMagick** (インストール済みでパスが通っていること)
-    * Mac: `brew install imagemagick ghostscript` (※PDF処理にGhostscriptが必須です)
-    * Windows: `magick` コマンドが使える状態
+
+- **Go 1.25+**
+- **ImageMagick** (インストール済みでパスが通っていること)
+  - Mac: `brew install imagemagick ghostscript` (※PDF処理にGhostscriptが必須です)
+  - Windows: `magick` コマンドが使える状態
 
 ## 使い方
 
 ### ビルド
+
 Makefileがルートにあるため、ルートディレクトリから以下を実行するのが簡単です。
+
 ```bash
 make go-build
 ```
+
 または `tools` ディレクトリ内で:
+
 ```bash
 cd tools
 go build -o ../bin/fruits-cli main.go
 ```
 
 ### 設定
+
 設定は **環境変数 (.env / .env.tools)** または **Configファイル (YAML)** で指定可能です。
 
 **環境変数 (.env):**
 `tools/.env` ファイルを作成して以下の内容を記述します。
+
 ```bash
 SUPABASE_URL=https://<your-project-id>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
@@ -35,6 +43,7 @@ SUPABASE_BUCKET_NAME=drills
 
 **Configファイル (config.yaml):**
 実行時に `-c config.yaml` で指定可能です。
+
 ```yaml
 supabase_url: "https://<your-project-id>.supabase.co"
 supabase_service_role_key: "<your-service-role-key>"
@@ -44,11 +53,13 @@ supabase_bucket_name: "drills"
 ### コマンド
 
 #### 1. ヘルプの表示
+
 ```bash
 ./bin/fruits-cli --help
 ```
 
 #### 2. ドリルの一括登録
+
 指定したPDFファイルをスキャンし、サムネイル生成・アップロード・DB登録を一括で行います。
 コマンドは `register` またはエイリアス `draft` を使用します（現在の実装では登録＝即座にDB挿入されます）。
 
@@ -60,12 +71,12 @@ supabase_bucket_name: "drills"
 ./bin/fruits-cli register -tags "算数,小4" -desc "4年生向けドリル" ./sample/*.pdf
 ```
 
-* `-tags`: カンマ区切りでタグを指定します。存在しないタグは自動的に作成されます。
-* `-desc`: 説明文を指定します。
+- `-tags`: カンマ区切りでタグを指定します。存在しないタグは自動的に作成されます。
+- `-desc`: 説明文を指定します。
 
 **実行結果:**
 成功すると、以下のように **Content ID (UUID)** が表示されます。
+
 ```text
 [SUCCESS] Drill registered. ID: 40ad54b0-d013-4ad0-8dc8-f1f62999e5b3
 ```
-

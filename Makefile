@@ -17,6 +17,9 @@ ts-start:
 ts-lint:
 	npm run lint
 
+ts-format:
+	npm run format
+
 # Go / Tools targets
 go-build:
 	cd tools && go build -o ../bin/fruits-cli main.go
