@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Download, ChevronLeft } from "lucide-react";
+import { ShareButtons } from "@/components/ui/ShareButtons";
 import type { Drill } from "../types";
-
 type Props = {
     drill: Drill;
 };
@@ -58,6 +58,13 @@ export const DrillDetail = ({ drill }: Props) => {
                     <p className="mt-2 text-xs text-gray-400">
                         PDFファイルが開きます
                     </p>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100 w-full">
+                    <ShareButtons
+                        title={`${drill.title} | ふるーつドリル`}
+                        url={typeof window !== "undefined" ? window.location.href : ""}
+                    />
                 </div>
             </div>
         </div>
