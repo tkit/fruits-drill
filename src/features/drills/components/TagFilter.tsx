@@ -33,7 +33,7 @@ export const TagFilter = ({ allTags, selectedTags, disabledTags }: Props) => {
             <Link
                 href="/"
                 className={cn(
-                    "rounded-full px-4 py-2 text-sm font-bold transition-colors",
+                    "rounded-full px-4 py-3 text-sm font-bold transition-colors",
                     selectedTags.length === 0
                         ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-100"
                         : "bg-white text-gray-600 hover:bg-rose-50 border border-gray-200"
@@ -62,7 +62,7 @@ export const TagFilter = ({ allTags, selectedTags, disabledTags }: Props) => {
                         key={tag}
                         href={getToggleHref(tag)}
                         className={cn(
-                            "rounded-full px-4 py-2 text-sm font-bold transition-colors",
+                            "rounded-full px-4 py-3 text-sm font-bold transition-colors",
                             isSelected
                                 ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-100"
                                 : "bg-white text-gray-600 hover:bg-rose-50 border border-gray-200"

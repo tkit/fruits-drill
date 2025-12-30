@@ -41,7 +41,7 @@ export default async function Home({
   return (
     <div className="space-y-10">
       <section className="text-center space-y-4 py-8">
-        <h1 className="text-4xl font-bold text-rose-600 tracking-tight">
+        <h1 className="text-2xl md:text-4xl font-bold text-rose-600 tracking-tight">
           楽しく学べる！ふるーつドリル
         </h1>
         <p className="text-lg text-gray-600">
@@ -60,7 +60,7 @@ export default async function Home({
 
       <section>
         {filteredDrills.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredDrills.map((drill) => (
               <DrillCard key={drill.id} drill={drill} />
             ))}
