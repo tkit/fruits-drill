@@ -2,7 +2,7 @@
 
 # Combined targets
 build: ts-build go-build
-test: go-test
+test: ts-test go-test
 
 # TypeScript / Web App targets
 ts-dev:
@@ -19,6 +19,9 @@ ts-lint:
 
 ts-format:
 	npm run format
+
+ts-test:
+	npm run test
 
 # Go / Tools targets
 go-build:
