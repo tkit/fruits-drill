@@ -1,6 +1,11 @@
 import { getDrills } from "@/features/drills/api/getDrills";
 import { DrillCard } from "@/features/drills/components/DrillCard";
 import { TagFilter } from "@/features/drills/components/TagFilter";
+import {
+  getAllTags,
+  filterDrills,
+  calculateDisabledTags
+} from "@/features/drills/utils/filterDrills";
 
 export default async function Home({
   searchParams,
@@ -11,32 +16,16 @@ export default async function Home({
   const drills = await getDrills();
 
   // Extract unique tags
-  const allTags = Array.from(new Set(drills.flatMap((drill) => drill.tags || []))).sort();
+  const allTags = getAllTags(drills);
 
   // Parse selected tags from URL (comma separated)
   const selectedTags = params.tags ? params.tags.split(",").filter(Boolean) : [];
 
   // Filter drills: Must include ALL selected tags (AND condition)
-  const filteredDrills = drills.filter((drill) => {
-    if (selectedTags.length === 0) return true;
-    return selectedTags.every((selectedTag) => drill.tags?.includes(selectedTag));
-  });
+  const filteredDrills = filterDrills(drills, selectedTags);
 
   // Calculate disabled tags (Zero-hit prevention)
-  const disabledTags = allTags.filter((tag) => {
-    // If already selected, not disabled (can be removed)
-    if (selectedTags.includes(tag)) return false;
-
-    // Hypothetically select this tag
-    const nextSelectedTags = [...selectedTags, tag];
-
-    // Check if any drill matches ALL new conditions
-    const matchCount = drills.filter((drill) => {
-      return nextSelectedTags.every((t) => drill.tags?.includes(t));
-    }).length;
-
-    return matchCount === 0;
-  });
+  const disabledTags = calculateDisabledTags(drills, selectedTags, allTags);
 
   return (
     <div className="space-y-10">

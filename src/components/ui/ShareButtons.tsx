@@ -1,11 +1,11 @@
 "use client";
 
-import { Check, Copy, Twitter } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { useState, useEffect } from "react";
 
 type Props = {
     title: string;
-    url: string;
+    url?: string;
 };
 
 export const ShareButtons = ({ title, url: initialUrl }: Props) => {
@@ -13,10 +13,13 @@ export const ShareButtons = ({ title, url: initialUrl }: Props) => {
     const [shareUrl, setShareUrl] = useState(initialUrl || "");
 
     useEffect(() => {
-        if (typeof window !== "undefined" && !shareUrl) {
-            setShareUrl(window.location.href);
+        if (!initialUrl && typeof window !== "undefined") {
+            const timer = setTimeout(() => {
+                setShareUrl(window.location.href);
+            }, 0);
+            return () => clearTimeout(timer);
         }
-    }, [initialUrl, shareUrl]);
+    }, [initialUrl]);
 
     const handleCopy = async () => {
         try {
@@ -28,7 +31,6 @@ export const ShareButtons = ({ title, url: initialUrl }: Props) => {
         }
     };
 
-    const shareText = `${title}\n${shareUrl}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
         title
     )}&url=${encodeURIComponent(shareUrl)}`;

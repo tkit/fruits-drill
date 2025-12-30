@@ -30,7 +30,7 @@ export const getDrills = unstable_cache(
 
         if (!drills) return [];
 
-        return drills.map((d: any) => ({
+        return drills.map((d) => ({
             id: d.id,
             title: d.title,
             thumbnail: {
@@ -38,7 +38,7 @@ export const getDrills = unstable_cache(
             },
             pdf: d.pdf_url,
             description: undefined, // List view generally doesn't show description
-            tags: d.drill_tags?.map((dt: any) => dt.tags?.name).filter(Boolean) || [],
+            tags: d.drill_tags?.map((dt) => dt.tags?.name).filter(Boolean) || [],
             publishedAt: d.created_at,
             revisedAt: d.created_at,
         }));
@@ -76,10 +76,10 @@ export const getDrill = async (contentId: string): Promise<Drill | null> => {
             url: drill.thumbnail_url,
         },
         pdf: drill.pdf_url,
-        description: drill.description,
-        tags: drill.drill_tags?.map((dt: any) => dt.tags?.name).filter(Boolean) || [],
+        description: drill.description || undefined,
+        tags: drill.drill_tags?.map((dt) => dt.tags?.name).filter(Boolean) || [],
         publishedAt: drill.created_at,
-        revisedAt: drill.created_at,
+        revisedAt: drill.created_at || undefined,
     };
 };
 

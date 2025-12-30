@@ -1,6 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
-import { Download, ChevronLeft } from "lucide-react";
+import { Download } from "lucide-react";
 import { ShareButtons } from "@/components/ui/ShareButtons";
 import type { Drill } from "../types";
 type Props = {
