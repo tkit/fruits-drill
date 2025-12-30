@@ -12,13 +12,13 @@ export const DrillCard = ({ drill }: Props) => {
             href={`/drills/${drill.id}`}
             className="group block overflow-hidden rounded-3xl bg-white shadow-sm transition-all hover:shadow-md hover:-translate-y-1 border border-orange-100"
         >
-            <div className="aspect-[3/4] w-full overflow-hidden bg-amber-50 relative">
+            <div className="aspect-square w-full overflow-hidden bg-amber-50 relative">
                 <Image
                     src={drill.thumbnail.url}
                     alt={drill.title}
                     fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                    className="object-cover object-left-top transition-transform duration-300 scale-150 origin-top-left group-hover:scale-[1.6]"
+                    sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
                 />
             </div>
             <div className="p-4">
