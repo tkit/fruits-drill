@@ -90,3 +90,17 @@ supabase_bucket_name: "drills"
 ```text
 [SUCCESS] Drill registered. ID: 40ad54b0-d013-4ad0-8dc8-f1f62999e5b3
 ```
+
+#### 3. ドリルの削除
+
+指定したタイトルのドリルを削除します。関連するPDF/サムネイルファイルと、そのドリルでしか使われていないタグも自動的に削除されます。
+
+```bash
+# 対話的に削除 (確認メッセージが表示されます)
+./bin/fruits-cli delete "ドリルのタイトル"
+
+# 強制削除 (確認なし)
+./bin/fruits-cli delete "ドリルのタイトル" -f
+```
+
+- `-f` / `--force`: 確認メッセージを表示せずに削除を実行します。

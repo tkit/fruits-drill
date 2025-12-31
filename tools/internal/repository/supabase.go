@@ -192,3 +192,86 @@ func (r *SupabaseRepository) SyncTags(ctx context.Context, drillID string, tags 
 	}
 	return nil
 }
+
+// GetDrillByTitle returns a drill by its title
+func (r *SupabaseRepository) GetDrillByTitle(ctx context.Context, title string) (*Drill, error) {
+	var drills []Drill
+	_, err := r.client.From("drills").Select("*", "", false).Eq("title", title).ExecuteTo(&drills)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query drill by title: %w", err)
+	}
+	if len(drills) == 0 {
+		return nil, nil
+	}
+	return &drills[0], nil
+}
+
+// GetDrillTags returns the tags for a given drill ID
+func (r *SupabaseRepository) GetDrillTags(ctx context.Context, drillID string) ([]Tag, error) {
+	// Join drill_tags and tags
+	// SELECT tags.* FROM drill_tags JOIN tags ON drill_tags.tag_id = tags.id WHERE drill_id = ?
+	// Postgrest: select(tag_id, tags(*))
+	
+	type DrillTagWithTag struct {
+		TagID string `json:"tag_id"`
+		Tag   Tag    `json:"tags"`
+	}
+
+	var results []DrillTagWithTag
+	_, err := r.client.From("drill_tags").Select("tag_id, tags(*)", "", false).Eq("drill_id", drillID).ExecuteTo(&results)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get drill tags: %w", err)
+	}
+
+	tags := make([]Tag, len(results))
+	for i, r := range results {
+		tags[i] = r.Tag
+	}
+	return tags, nil
+}
+
+// DeleteDrill deletes a drill record.
+func (r *SupabaseRepository) DeleteDrill(ctx context.Context, drillID string) error {
+	// First delete relations in drill_tags? 
+	// If CASCADE is not set up in DB, we must delete manually.
+	// But `Delete` on `drills` will fail if there are foreign keys without cascade.
+	// We will attempt to delete drill_tags first just in case.
+	_, _, err := r.client.From("drill_tags").Delete("", "").Eq("drill_id", drillID).Execute()
+	if err != nil {
+		return fmt.Errorf("failed to delete drill_tags: %w", err)
+	}
+
+	_, _, err = r.client.From("drills").Delete("", "").Eq("id", drillID).Execute()
+	if err != nil {
+		return fmt.Errorf("failed to delete drill: %w", err)
+	}
+	return nil
+}
+
+// DeleteFile deletes a file from Supabase Storage
+func (r *SupabaseRepository) DeleteFile(ctx context.Context, path string) error {
+	// RemoveFile(bucket, []string{path})
+	_, err := r.client.Storage.RemoveFile(r.bucketName, []string{path})
+	if err != nil {
+		return fmt.Errorf("failed to delete file %s: %w", path, err)
+	}
+	return nil
+}
+
+// CountDrillsForTag counts how many drills are using a specific tag
+func (r *SupabaseRepository) CountDrillsForTag(ctx context.Context, tagID string) (int64, error) {
+	_, count, err := r.client.From("drill_tags").Select("*", "exact", true).Eq("tag_id", tagID).Execute()
+	if err != nil {
+		return 0, fmt.Errorf("failed to count usage for tag %s: %w", tagID, err)
+	}
+	return count, nil
+}
+
+// DeleteTag deletes a tag by ID
+func (r *SupabaseRepository) DeleteTag(ctx context.Context, tagID string) error {
+	_, _, err := r.client.From("tags").Delete("", "").Eq("id", tagID).Execute()
+	if err != nil {
+		return fmt.Errorf("failed to delete tag %s: %w", tagID, err)
+	}
+	return nil
+}
