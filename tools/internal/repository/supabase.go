@@ -118,7 +118,7 @@ func (r *SupabaseRepository) RegisterDrill(ctx context.Context, title, desc, pdf
 		var tagResult []Tag
 
 		// Upsert tag
-		_, err := r.client.From("tags").Upsert(tagPayload, "", "", "").ExecuteTo(&tagResult)
+		_, err := r.client.From("tags").Upsert(tagPayload, "name", "", "").ExecuteTo(&tagResult)
 		if err != nil {
 			return "", fmt.Errorf("failed to upsert tag %s: %w", tagName, err)
 		}
