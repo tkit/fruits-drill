@@ -5,10 +5,7 @@ import { Search, X } from "lucide-react";
 import { Drill } from "@/features/drills/types";
 import { DrillCard } from "@/features/drills/components/DrillCard";
 import { TagFilter } from "@/features/drills/components/TagFilter";
-import {
-  filterDrills,
-  calculateDisabledTags,
-} from "@/features/drills/utils/filterDrills";
+import { filterDrills, calculateDisabledTags } from "@/features/drills/utils/filterDrills";
 
 type Props = {
   drills: Drill[];
@@ -16,14 +13,9 @@ type Props = {
   initialSelectedTags: string[];
 };
 
-export const DrillListContainer = ({
-  drills,
-  allTags,
-  initialSelectedTags,
-}: Props) => {
+export const DrillListContainer = ({ drills, allTags, initialSelectedTags }: Props) => {
   const [searchText, setSearchText] = useState("");
-  const [selectedTags, setSelectedTags] =
-    useState<string[]>(initialSelectedTags);
+  const [selectedTags, setSelectedTags] = useState<string[]>(initialSelectedTags);
 
   // Filter drills by search text AND selected tags
   const filteredDrills = useMemo(() => {
@@ -37,8 +29,7 @@ export const DrillListContainer = ({
         // Search in title
         if (drill.title.toLowerCase().includes(lowerQuery)) return true;
         // Search in tags
-        if (drill.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery)))
-          return true;
+        if (drill.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery))) return true;
         return false;
       });
     }
@@ -58,14 +49,13 @@ export const DrillListContainer = ({
     // If we use 'drills filtered by search text', it checks against accessible drills.
     // The "AND" logic in `calculateDisabledTags` normally takes the "base set" of drills.
     // Let's filter drills by search text first, then calculate disabled tags for that subset.
-    
+
     let baseDrills = drills;
     if (searchText.trim()) {
-       const lowerQuery = searchText.toLowerCase().trim();
-       baseDrills = drills.filter((drill) => {
+      const lowerQuery = searchText.toLowerCase().trim();
+      baseDrills = drills.filter((drill) => {
         if (drill.title.toLowerCase().includes(lowerQuery)) return true;
-        if (drill.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery)))
-          return true;
+        if (drill.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery))) return true;
         return false;
       });
     }
@@ -106,9 +96,7 @@ export const DrillListContainer = ({
           disabledTags={disabledTags}
           onToggle={(tag) => {
             setSelectedTags((prev) =>
-              prev.includes(tag)
-                ? prev.filter((t) => t !== tag)
-                : [...prev, tag]
+              prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
             );
           }}
           onClear={() => setSelectedTags([])}
@@ -127,12 +115,12 @@ export const DrillListContainer = ({
           <div className="text-center py-20 text-gray-500 space-y-2">
             <p>条件に一致するドリルは見つかりませんでした。</p>
             {(searchText || selectedTags.length > 0) && (
-              <button 
-                 onClick={() => {
-                   setSearchText("");
-                   setSelectedTags([]);
-                 }}
-                 className="text-rose-600 hover:underline text-sm"
+              <button
+                onClick={() => {
+                  setSearchText("");
+                  setSelectedTags([]);
+                }}
+                className="text-rose-600 hover:underline text-sm"
               >
                 検索条件をリセットする
               </button>

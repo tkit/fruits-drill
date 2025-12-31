@@ -78,8 +78,8 @@ describe("Home", () => {
 
   it("filters drills by search text", async () => {
     (getDrills as jest.Mock).mockResolvedValue([
-        { id: "1", title: "Apple", tags: ["fruit"], thumbnail: { url: "" } },
-        { id: "2", title: "Banana", tags: ["fruit"], thumbnail: { url: "" } },
+      { id: "1", title: "Apple", tags: ["fruit"], thumbnail: { url: "/apple.jpg" } },
+      { id: "2", title: "Banana", tags: ["fruit"], thumbnail: { url: "/banana.jpg" } },
     ]);
 
     const ui = await Home({ searchParams: Promise.resolve({}) });
@@ -99,7 +99,7 @@ describe("Home", () => {
 
   it("clears search text when clear button is clicked", async () => {
     (getDrills as jest.Mock).mockResolvedValue([
-        { id: "1", title: "Apple", tags: ["fruit"], thumbnail: { url: "" } },
+      { id: "1", title: "Apple", tags: ["fruit"], thumbnail: { url: "/apple.jpg" } },
     ]);
 
     const ui = await Home({ searchParams: Promise.resolve({}) });
@@ -107,7 +107,7 @@ describe("Home", () => {
 
     const input = screen.getByPlaceholderText("キーワードでドリルを探す...");
     await user.type(input, "App");
-    
+
     // Clear button should appear
     const clearBtn = screen.getByLabelText("検索ワードを消去");
     await user.click(clearBtn);
@@ -120,8 +120,8 @@ describe("Home", () => {
 import userEvent from "@testing-library/user-event";
 
 function renderWithUser(ui: React.ReactElement) {
-    return {
-        user: userEvent.setup(),
-        ...render(ui),
-    };
+  return {
+    user: userEvent.setup(),
+    ...render(ui),
+  };
 }

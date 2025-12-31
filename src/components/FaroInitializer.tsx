@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import {
-  getWebInstrumentations,
-  initializeFaro,
-  Faro,
-} from "@grafana/faro-web-sdk";
+import { getWebInstrumentations, initializeFaro, Faro } from "@grafana/faro-web-sdk";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 
 export function FaroInitializer() {
@@ -28,10 +24,7 @@ export function FaroInitializer() {
           version: appVersion,
           environment: appEnv,
         },
-        instrumentations: [
-          ...getWebInstrumentations(),
-          new TracingInstrumentation(),
-        ],
+        instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
       });
     } catch (error) {
       console.error("Faro initialization failed", error);

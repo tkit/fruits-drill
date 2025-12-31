@@ -30,8 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = drill.title;
   const description =
-    drill.description ||
-    `${title}の無料学習プリントです。ダウンロードして印刷して使えます。`;
+    drill.description || `${title}の無料学習プリントです。ダウンロードして印刷して使えます。`;
 
   return {
     title: title,

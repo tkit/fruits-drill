@@ -44,6 +44,7 @@ SUPABASE_BUCKET_NAME=drills # Optional (default behavior might vary if not set, 
 ```
 
 **必須項目:**
+
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
@@ -57,6 +58,7 @@ supabase_bucket_name: "drills"
 ```
 
 **必須項目:**
+
 - `supabase_url`
 - `supabase_service_role_key`
 

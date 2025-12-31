@@ -25,11 +25,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
         </p>
       </section>
 
-      <DrillListContainer
-        drills={drills}
-        allTags={allTags}
-        initialSelectedTags={selectedTags}
-      />
+      <DrillListContainer drills={drills} allTags={allTags} initialSelectedTags={selectedTags} />
     </div>
   );
 }
