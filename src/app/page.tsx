@@ -1,11 +1,6 @@
 import { getDrills } from "@/features/drills/api/getDrills";
-import { DrillCard } from "@/features/drills/components/DrillCard";
-import { TagFilter } from "@/features/drills/components/TagFilter";
-import {
-  getAllTags,
-  filterDrills,
-  calculateDisabledTags,
-} from "@/features/drills/utils/filterDrills";
+import { getAllTags } from "@/features/drills/utils/filterDrills";
+import { DrillListContainer } from "@/features/drills/components/DrillListContainer";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ tags?: string }> }) {
   const params = await searchParams;
@@ -16,12 +11,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
 
   // Parse selected tags from URL (comma separated)
   const selectedTags = params.tags ? params.tags.split(",").filter(Boolean) : [];
-
-  // Filter drills: Must include ALL selected tags (AND condition)
-  const filteredDrills = filterDrills(drills, selectedTags);
-
-  // Calculate disabled tags (Zero-hit prevention)
-  const disabledTags = calculateDisabledTags(drills, selectedTags, allTags);
 
   return (
     <div className="space-y-10">
@@ -36,23 +25,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
         </p>
       </section>
 
-      <section className="flex justify-center">
-        <TagFilter allTags={allTags} selectedTags={selectedTags} disabledTags={disabledTags} />
-      </section>
-
-      <section>
-        {filteredDrills.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredDrills.map((drill) => (
-              <DrillCard key={drill.id} drill={drill} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20 text-gray-500">
-            条件に一致するドリルは見つかりませんでした。
-          </div>
-        )}
-      </section>
+      <DrillListContainer
+        drills={drills}
+        allTags={allTags}
+        initialSelectedTags={selectedTags}
+      />
     </div>
   );
 }

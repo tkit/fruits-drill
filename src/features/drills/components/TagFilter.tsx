@@ -5,9 +5,11 @@ type Props = {
   allTags: string[];
   selectedTags: string[];
   disabledTags: string[];
+  onToggle?: (tag: string) => void;
+  onClear?: () => void;
 };
 
-export const TagFilter = ({ allTags, selectedTags, disabledTags }: Props) => {
+export const TagFilter = ({ allTags, selectedTags, disabledTags, onToggle, onClear }: Props) => {
   // Helper to generate href for tag toggling
   const getToggleHref = (tag: string) => {
     const isSelected = selectedTags.includes(tag);
@@ -30,17 +32,32 @@ export const TagFilter = ({ allTags, selectedTags, disabledTags }: Props) => {
   return (
     <div className="flex flex-wrap gap-2">
       {/* "All" button clears everything */}
-      <Link
-        href="/"
-        className={cn(
-          "rounded-full px-4 py-3 text-sm font-bold transition-colors",
-          selectedTags.length === 0
-            ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-100"
-            : "bg-white text-gray-600 hover:bg-rose-50 border border-gray-200"
-        )}
-      >
-        すべて
-      </Link>
+      {onToggle ? (
+        <button
+          onClick={() => onClear?.()}
+          type="button"
+          className={cn(
+            "rounded-full px-4 py-3 text-sm font-bold transition-colors cursor-pointer",
+            selectedTags.length === 0
+              ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-100"
+              : "bg-white text-gray-600 hover:bg-rose-50 border border-gray-200"
+          )}
+        >
+          すべて
+        </button>
+      ) : (
+        <Link
+          href="/"
+          className={cn(
+            "rounded-full px-4 py-3 text-sm font-bold transition-colors",
+            selectedTags.length === 0
+              ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-100"
+              : "bg-white text-gray-600 hover:bg-rose-50 border border-gray-200"
+          )}
+        >
+          すべて
+        </Link>
+      )}
 
       {allTags.map((tag) => {
         const isSelected = selectedTags.includes(tag);
@@ -54,6 +71,24 @@ export const TagFilter = ({ allTags, selectedTags, disabledTags }: Props) => {
             >
               {tag}
             </span>
+          );
+        }
+
+        if (onToggle) {
+          return (
+            <button
+              key={tag}
+              onClick={() => onToggle(tag)}
+              type="button"
+              className={cn(
+                "rounded-full px-4 py-3 text-sm font-bold transition-colors cursor-pointer",
+                isSelected
+                  ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-100"
+                  : "bg-white text-gray-600 hover:bg-rose-50 border border-gray-200"
+              )}
+            >
+              {tag}
+            </button>
           );
         }
 

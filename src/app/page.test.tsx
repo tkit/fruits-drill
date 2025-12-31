@@ -75,4 +75,53 @@ describe("Home", () => {
     expect(screen.getByText("Math Drill")).toBeInTheDocument();
     expect(screen.queryByText("Kanji Drill")).not.toBeInTheDocument();
   });
+
+  it("filters drills by search text", async () => {
+    (getDrills as jest.Mock).mockResolvedValue([
+        { id: "1", title: "Apple", tags: ["fruit"], thumbnail: { url: "" } },
+        { id: "2", title: "Banana", tags: ["fruit"], thumbnail: { url: "" } },
+    ]);
+
+    const ui = await Home({ searchParams: Promise.resolve({}) });
+    const { user } = renderWithUser(ui);
+
+    // Initial: both shown
+    expect(screen.getByText("Apple")).toBeInTheDocument();
+    expect(screen.getByText("Banana")).toBeInTheDocument();
+
+    // Type "App"
+    const input = screen.getByPlaceholderText("キーワードでドリルを探す...");
+    await user.type(input, "App");
+
+    expect(screen.getByText("Apple")).toBeInTheDocument();
+    expect(screen.queryByText("Banana")).not.toBeInTheDocument();
+  });
+
+  it("clears search text when clear button is clicked", async () => {
+    (getDrills as jest.Mock).mockResolvedValue([
+        { id: "1", title: "Apple", tags: ["fruit"], thumbnail: { url: "" } },
+    ]);
+
+    const ui = await Home({ searchParams: Promise.resolve({}) });
+    const { user } = renderWithUser(ui);
+
+    const input = screen.getByPlaceholderText("キーワードでドリルを探す...");
+    await user.type(input, "App");
+    
+    // Clear button should appear
+    const clearBtn = screen.getByLabelText("検索ワードを消去");
+    await user.click(clearBtn);
+
+    expect(input).toHaveValue("");
+  });
 });
+
+// Helper to use userEvent
+import userEvent from "@testing-library/user-event";
+
+function renderWithUser(ui: React.ReactElement) {
+    return {
+        user: userEvent.setup(),
+        ...render(ui),
+    };
+}
