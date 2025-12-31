@@ -107,8 +107,8 @@ export const DrillListContainer = ({ drills, allTags, initialSelectedTags }: Pro
       <section>
         {filteredDrills.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredDrills.map((drill) => (
-              <DrillCard key={drill.id} drill={drill} />
+            {filteredDrills.map((drill, index) => (
+              <DrillCard key={drill.id} drill={drill} priority={index < 4} />
             ))}
           </div>
         ) : (

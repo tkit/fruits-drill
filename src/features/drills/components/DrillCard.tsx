@@ -4,9 +4,10 @@ import type { Drill } from "../types";
 
 type Props = {
   drill: Drill;
+  priority?: boolean;
 };
 
-export const DrillCard = ({ drill }: Props) => {
+export const DrillCard = ({ drill, priority = false }: Props) => {
   return (
     <Link
       href={`/drills/${drill.id}`}
@@ -17,6 +18,7 @@ export const DrillCard = ({ drill }: Props) => {
           src={drill.thumbnail.url}
           alt={drill.title}
           fill
+          priority={priority}
           className="object-cover object-left-top transition-transform duration-300 scale-150 origin-top-left group-hover:scale-[1.6]"
           sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
         />
