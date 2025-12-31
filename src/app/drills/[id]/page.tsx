@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 
+import type { Metadata } from "next";
+
 type Props = {
   params: Promise<{ id: string }>;
 };
@@ -14,6 +16,35 @@ export async function generateStaticParams() {
   return drills.map((drill) => ({
     id: drill.id,
   }));
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const drill = await getDrill(id);
+
+  if (!drill) {
+    return {
+      title: "お探しのドリルは見つかりませんでした",
+    };
+  }
+
+  const title = drill.title;
+  const description =
+    drill.description ||
+    `${title}の無料学習プリントです。ダウンロードして印刷して使えます。`;
+
+  return {
+    title: title,
+    description: description,
+    openGraph: {
+      title: title,
+      description: description,
+    },
+    twitter: {
+      title: title,
+      description: description,
+    },
+  };
 }
 
 export default async function DrillPage({ params }: Props) {
