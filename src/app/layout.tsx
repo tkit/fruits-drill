@@ -4,6 +4,7 @@ import { Zen_Maru_Gothic } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { FaroInitializer } from "@/components/FaroInitializer";
 
 const zenMaruGothic = Zen_Maru_Gothic({
   weight: ["500", "700"],
@@ -57,6 +58,7 @@ export default function RootLayout({
         {modal}
         <Footer />
         <SpeedInsights />
+        <FaroInitializer />
       </body>
     </html>
   );
