@@ -64,6 +64,11 @@ func (r *SupabaseRepository) UploadFile(ctx context.Context, localPath, destPath
 	return publicURL.SignedURL, nil
 }
 
+// GetPublicURL returns the public URL for a given storage path without uploading.
+func (r *SupabaseRepository) GetPublicURL(destPath string) string {
+	return r.client.Storage.GetPublicUrl(r.bucketName, destPath).SignedURL
+}
+
 // Drill represents the drills table structure
 type Drill struct {
 	ID           string `json:"id,omitempty"`
@@ -95,9 +100,6 @@ func (r *SupabaseRepository) RegisterDrill(ctx context.Context, title, desc, pdf
 	}
 
 	var drillResult []Drill
-	// postgrest-go: Insert(value interface{}, upsert bool?, onConflict string?, returning string?, count string?)
-	// Actually Execute matches the query built.
-	// We need query param "select" to return the ID? "returning=representation" is default usually.
 	_, err := r.client.From("drills").Insert(drill, false, "", "", "").ExecuteTo(&drillResult)
 	if err != nil {
 		return "", fmt.Errorf("failed to insert drill: %w", err)
@@ -108,6 +110,47 @@ func (r *SupabaseRepository) RegisterDrill(ctx context.Context, title, desc, pdf
 	drillID := drillResult[0].ID
 
 	// 2. Process Tags
+	if err := r.SyncTags(ctx, drillID, tags); err != nil {
+		return "", fmt.Errorf("failed to sync tags: %w", err)
+	}
+
+	return drillID, nil
+}
+
+// GetDrillByPDFURL checks if a drill with the given PDF URL exists.
+// We search for the URL containing the object key since the domain might vary or be partial.
+// Actually, strict matching is safer if we know how we construct it.
+// The existing Register logic stores the result of UploadFile.
+// In UploadFile it returns `r.client.Storage.GetPublicUrl`.
+// So we should be able to reconstruct the URL or search by suffix.
+func (r *SupabaseRepository) GetDrillByPDFURL(ctx context.Context, pdfURL string) (*Drill, error) {
+	var drills []Drill
+	// Exact match check
+	_, err := r.client.From("drills").Select("*", "", false).Eq("pdf_url", pdfURL).ExecuteTo(&drills)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query drill by pdf_url: %w", err)
+	}
+	if len(drills) == 0 {
+		return nil, nil
+	}
+	return &drills[0], nil
+}
+
+// SyncTags updates the tags for a drill.
+// It ensures the drill has exactly the provided tags.
+func (r *SupabaseRepository) SyncTags(ctx context.Context, drillID string, tags []string) error {
+	// For simplicity, we can just ensure they exist and link them.
+	// If we want to replace, we should remove existing links first?
+	// The requirement is "update tags".
+	// Let's first delete existing links for this drill
+	// Note: deeper sync (diff) is more efficient but delete-all-insert is simpler for "Replace" semantics.
+	// However, Supabase/Postgrest delete might require some care.
+	// Using Delete() with Filter DrillID
+	_, _, err := r.client.From("drill_tags").Delete("", "").Eq("drill_id", drillID).Execute()
+	if err != nil {
+		return fmt.Errorf("failed to clear existing tags: %w", err)
+	}
+
 	for _, tagName := range tags {
 		if tagName == "" {
 			continue
@@ -120,7 +163,7 @@ func (r *SupabaseRepository) RegisterDrill(ctx context.Context, title, desc, pdf
 		// Upsert tag
 		_, err := r.client.From("tags").Upsert(tagPayload, "name", "", "").ExecuteTo(&tagResult)
 		if err != nil {
-			return "", fmt.Errorf("failed to upsert tag %s: %w", tagName, err)
+			return fmt.Errorf("failed to upsert tag %s: %w", tagName, err)
 		}
 
 		var tagID string
@@ -131,26 +174,21 @@ func (r *SupabaseRepository) RegisterDrill(ctx context.Context, title, desc, pdf
 			var findTags []Tag
 			_, err := r.client.From("tags").Select("*", "", false).Eq("name", tagName).ExecuteTo(&findTags)
 			if err != nil || len(findTags) == 0 {
-				return "", fmt.Errorf("failed to retrieve tag id for %s: %w", tagName, err)
+				return fmt.Errorf("failed to retrieve tag id for %s: %w", tagName, err)
 			}
 			tagID = findTags[0].ID
 		}
 
-		// 3. Link Drill and Tag
+		// Link Drill and Tag
 		link := DrillTag{
 			DrillID: drillID,
 			TagID:   tagID,
 		}
-		// Insert link - linking table usually doesn't need to return anything
-		// But ExecuteTo is safer to ensure it executed.
 		var linkResult []interface{}
 		_, err = r.client.From("drill_tags").Insert(link, false, "", "", "").ExecuteTo(&linkResult)
 		if err != nil {
-			// Ignore unique constraint violation if we run this multiple times?
-			// But we created a new drill ID, so (drill_id, tag_id) should be unique.
-			return "", fmt.Errorf("failed to link tag %s: %w", tagName, err)
+			return fmt.Errorf("failed to link tag %s: %w", tagName, err)
 		}
 	}
-
-	return drillID, nil
+	return nil
 }

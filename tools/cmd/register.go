@@ -2,13 +2,15 @@ package cmd
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"github.com/tkit/fruits-drill/tools/internal/config"
 	"github.com/tkit/fruits-drill/tools/internal/repository"
@@ -92,7 +94,37 @@ func init() {
 func processFile(ctx context.Context, pdfPath string, repo *repository.SupabaseRepository, tb *thumbnail.Generator, tags []string, desc string) {
 	log.Printf("Processing: %s", pdfPath)
 
-	// Thumbnail
+	// 1. Calculate Hash of the PDF
+	hash, err := calculateFileHash(pdfPath)
+	if err != nil {
+		log.Printf("  [ERROR] Failed to calculate hash: %v", err)
+		return
+	}
+	log.Printf("  -> File Hash: %s", hash)
+
+	// 2. Check if Drill already exists by PDF URL (Content)
+	// Key: pdf/<HASH>.pdf
+	pdfKey := fmt.Sprintf("pdf/%s.pdf", hash)
+	pdfURL := repo.GetPublicURL(pdfKey)
+
+	existingDrill, err := repo.GetDrillByPDFURL(ctx, pdfURL)
+	if err != nil {
+		log.Printf("  [ERROR] Failed to check for existing drill: %v", err)
+		return
+	}
+
+	if existingDrill != nil {
+		log.Printf("  [INFO] Drill already exists (ID: %s). Skipping upload.", existingDrill.ID)
+		log.Println("  -> Updating tags...")
+		if err := repo.SyncTags(ctx, existingDrill.ID, tags); err != nil {
+			log.Printf("  [ERROR] Failed to sync tags: %v", err)
+		} else {
+			log.Println("  [SUCCESS] Tags updated.")
+		}
+		return
+	}
+
+	// 3. Thumbnail Generation (New Drill)
 	log.Println("  -> Generating thumbnail...")
 	thumbPath, err := tb.GenerateFromPDF(pdfPath)
 	if err != nil {
@@ -101,23 +133,22 @@ func processFile(ctx context.Context, pdfPath string, repo *repository.SupabaseR
 	}
 	defer os.Remove(thumbPath)
 
-	// Generate UUID for storage keys
-	fileUUID := uuid.New().String()
-
-	// Upload PDF
+	// 4. Upload PDF
 	log.Println("  -> Uploading PDF to Supabase Storage...")
-	// Use UUID for storage key to avoid character issues
-	pdfKey := fmt.Sprintf("pdf/%s.pdf", fileUUID)
-	pdfURL, err := repo.UploadFile(ctx, pdfPath, pdfKey)
+	uploadedPDFURL, err := repo.UploadFile(ctx, pdfPath, pdfKey)
 	if err != nil {
 		log.Printf("  [ERROR] Failed to upload PDF: %v", err)
 		return
 	}
-	log.Printf("     %s", pdfURL)
+	log.Printf("     %s", uploadedPDFURL)
 
-	// Upload Thumbnail
+	// 5. Upload Thumbnail
+	// We can use the same hash for thumbnail key too? or keep random UUID?
+	// Existing plan said: "pdf/<HASH>.pdf". It didn't specify thumbnail.
+	// But if we want complete deduplication, we should probably hash the thumbnail too or just use the same hash (pdf hash) for the thumbnail filename.
+	// Let's use the PDF hash for the thumbnail too to keep them related.
 	log.Println("  -> Uploading Thumbnail to Supabase Storage...")
-	thumbKey := fmt.Sprintf("thumbnail/%s.png", fileUUID)
+	thumbKey := fmt.Sprintf("thumbnail/%s.png", hash)
 	thumbURL, err := repo.UploadFile(ctx, thumbPath, thumbKey)
 	if err != nil {
 		log.Printf("  [ERROR] Failed to upload thumbnail: %v", err)
@@ -125,15 +156,30 @@ func processFile(ctx context.Context, pdfPath string, repo *repository.SupabaseR
 	}
 	log.Printf("     %s", thumbURL)
 
-	// Register
+	// 6. Register
 	log.Println("  -> Registering to Supabase DB...")
 	title := strings.TrimSuffix(filepath.Base(pdfPath), filepath.Ext(pdfPath))
 
-	id, err := repo.RegisterDrill(ctx, title, desc, pdfURL, thumbURL, tags)
+	id, err := repo.RegisterDrill(ctx, title, desc, uploadedPDFURL, thumbURL, tags)
 	if err != nil {
 		log.Printf("  [ERROR] Failed to register: %v", err)
 		return
 	}
 
 	log.Printf("  [SUCCESS] Drill registered. ID: %s", id)
+}
+
+func calculateFileHash(path string) (string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
