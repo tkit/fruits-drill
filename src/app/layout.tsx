@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Zen_Maru_Gothic } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
@@ -32,6 +33,7 @@ export default function RootLayout({
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8">{children}</main>
         {modal}
         <Footer />
+        <SpeedInsights />
       </body>
     </html>
   );
