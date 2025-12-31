@@ -38,8 +38,14 @@ go build -o ../bin/fruits-cli main.go
 ```bash
 SUPABASE_URL=https://<your-project-id>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
-SUPABASE_BUCKET_NAME=drills
+SUPABASE_URL=https://<your-project-id>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+SUPABASE_BUCKET_NAME=drills # Optional (default behavior might vary if not set, but good to include)
 ```
+
+**必須項目:**
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
 **Configファイル (config.yaml):**
 実行時に `-c config.yaml` で指定可能です。
@@ -49,6 +55,10 @@ supabase_url: "https://<your-project-id>.supabase.co"
 supabase_service_role_key: "<your-service-role-key>"
 supabase_bucket_name: "drills"
 ```
+
+**必須項目:**
+- `supabase_url`
+- `supabase_service_role_key`
 
 ### コマンド
 

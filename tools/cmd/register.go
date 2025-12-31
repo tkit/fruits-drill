@@ -38,6 +38,10 @@ var registerCmd = &cobra.Command{
 				log.Fatalf("Failed to load config: %v", err)
 			}
 		}
+		
+		if err := cfg.Validate(); err != nil {
+			log.Fatalf("Invalid configuration: %v", err)
+		}
 
 		// 2. Initialize Components
 		ctx := context.Background()

@@ -38,3 +38,13 @@ func LoadFromFile(path string) (*Config, error) {
 
 	return &cfg, nil
 }
+
+func (c *Config) Validate() error {
+	if c.SupabaseURL == "" {
+		return fmt.Errorf("SupabaseURL is required (env: SUPABASE_URL or yaml: supabase_url)")
+	}
+	if c.SupabaseServiceRoleKey == "" {
+		return fmt.Errorf("SupabaseServiceRoleKey is required (env: SUPABASE_SERVICE_ROLE_KEY or yaml: supabase_service_role_key)")
+	}
+	return nil
+}
