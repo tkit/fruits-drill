@@ -14,6 +14,9 @@
 - **Icons**: **Lucide React**
 - **Database / CMS / Storage**: **Supabase** (PostgreSQL / Storage)
 - **Deployment**: Vercel
+- **Monitoring**: **Grafana Faro** (Web SDK)
+- **Performance**: **Vercel Speed Insights**
+- **Testing**: **Jest**, **React Testing Library**
 - **Admin Tool**: **Go (Golang)**
 
 ## 3. ディレクトリ構成 (Feature-based)
@@ -75,6 +78,7 @@
 - **一覧画面 (`/`)**:
 - ドリルをカード形式でグリッド表示する。
 - **タグフィルタリングUI**: DBから取得したドリルデータを元に動的にフィルタリングまたはタグ一覧を表示する。
+- **インクリメンタルサーチ**: タイトルやタグを対象としたリアルタイム検索（クライアントサイド）。クリアボタン付き。
 
 - **詳細モーダル (Intercepting Routes)**:
 - `(.)drills/[id]` を利用してモーダル表示する。
@@ -104,6 +108,7 @@
 
 - PDFファイルと生成したサムネイル画像を `drills` バケットにアップロードする。
 - ファイル名由来のトラブルを避けるため、パスにはUUIDを使用する (`pdf/<uuid>.pdf`, `thumbnail/<uuid>.png`)。
+- **Idempotency**: 同一ファイルが登録される場合、既存のStorageオブジェクトを再利用し、二重アップロードを防ぐ。
 
 4. **Supabase Database 登録**:
 
@@ -116,6 +121,16 @@
 - **Tags**: `-tags "tag1,tag2"` オプションでタグを指定可能とする。
 - **Description**: `-desc "text"` オプションで説明文を指定可能とする。
 - **Help**: `-help` または `--help` で使い方を表示する。
+
+6. **削除機能 (`delete` サブコマンド)**:
+
+- `fruits-cli delete -title "Drill Title"` のようにタイトル指定で削除可能とする。
+- DBレコード (`drills`, `drill_tags`) および Storage上のファイル (PDF, Thumbnail) を削除する。
+- 他で使用されていないタグがあれば `tags` テーブルからも削除する。
+
+7. **エラーハンドリング**:
+
+- 環境変数や設定ファイルが不足している場合、panicせずユーザーに分かりやすいエラーメッセージを表示する。
 
 ## 6. 環境変数 (.env.local / tools/.env)
 
