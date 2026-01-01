@@ -1,0 +1,17 @@
+# Build and dependency directories
+node_modules/
+.next/
+dist/
+out/
+coverage/
+
+# Package managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Agent configuration
+.agent/
+
+# CLI Tools
+tools/
