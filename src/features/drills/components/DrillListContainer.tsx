@@ -194,12 +194,12 @@ export const DrillListContainer = ({
     <div className="space-y-10">
       {/* Search Input */}
       <section className="max-w-md mx-auto relative group">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-rose-500 transition-colors">
-          <Search size={20} />
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-rose-500 transition-colors">
+          <Search size={22} className="stroke-[2.5px]" />
         </div>
         <input
           type="text"
-          className="w-full pl-10 pr-10 py-3 rounded-full border-2 border-gray-200 focus:border-rose-500 focus:outline-none focus:ring-4 focus:ring-rose-100 transition-all text-gray-700 placeholder-gray-400"
+          className="w-full pl-12 pr-12 py-3.5 rounded-full border-2 border-border/60 bg-white/50 backdrop-blur-sm focus:border-rose-400 focus:outline-none focus:ring-4 focus:ring-rose-100/50 transition-all text-gray-700 placeholder-gray-400/80 font-bold"
           placeholder="キーワードでドリルを探す..."
           value={searchText}
           onChange={handleSearchChange}
@@ -207,10 +207,10 @@ export const DrillListContainer = ({
         {searchText && (
           <button
             onClick={handleClearSearch}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-rose-500 transition-colors"
             aria-label="検索ワードを消去"
           >
-            <X size={18} />
+            <X size={20} className="stroke-[2.5px]" />
           </button>
         )}
       </section>

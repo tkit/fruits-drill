@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { getFruitTheme } from "@/features/drills/utils/filterDrills";
 
 type Props = {
   allTags: string[];
@@ -7,6 +8,16 @@ type Props = {
   disabledTags: string[];
   onToggle?: (tag: string) => void;
   onClear?: () => void;
+};
+
+// Map soft background colors to solid active colors
+const ACTIVE_COLOR_MAP: Record<string, string> = {
+  "bg-rose-100": "bg-rose-500 border-rose-600 hover:bg-rose-600",
+  "bg-orange-100": "bg-orange-500 border-orange-600 hover:bg-orange-600",
+  "bg-purple-100": "bg-purple-500 border-purple-600 hover:bg-purple-600",
+  "bg-green-100": "bg-green-500 border-green-600 hover:bg-green-600",
+  "bg-yellow-100": "bg-yellow-500 border-yellow-600 hover:bg-yellow-600",
+  "bg-amber-100": "bg-amber-500 border-amber-600 hover:bg-amber-600",
 };
 
 export const TagFilter = ({ allTags, selectedTags, disabledTags, onToggle, onClear }: Props) => {
@@ -29,19 +40,22 @@ export const TagFilter = ({ allTags, selectedTags, disabledTags, onToggle, onCle
     return `/?tags=${encodeURIComponent(newTags.join(","))}`;
   };
 
+  const baseButtonClass =
+    "rounded-full px-5 py-2.5 text-sm font-bold transition-all duration-200 border transform active:scale-95";
+  const defaultActive =
+    "bg-rose-500 text-white shadow-md border-rose-600 hover:bg-rose-600 hover:-translate-y-0.5";
+  const inactiveClass =
+    "bg-white text-gray-600 border-border/60 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-600 hover:shadow-sm hover:-translate-y-0.5";
+  const disabledClass = "bg-gray-100 text-gray-300 border-transparent cursor-not-allowed";
+
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-3 justify-center">
       {/* "All" button clears everything */}
       {onToggle ? (
         <button
           onClick={() => onClear?.()}
           type="button"
-          className={cn(
-            "rounded-full px-4 py-3 text-sm font-bold transition-colors cursor-pointer",
-            selectedTags.length === 0
-              ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-100"
-              : "bg-white text-gray-600 hover:bg-rose-50 border border-gray-200"
-          )}
+          className={cn(baseButtonClass, selectedTags.length === 0 ? defaultActive : inactiveClass)}
         >
           すべて
         </button>
@@ -49,10 +63,9 @@ export const TagFilter = ({ allTags, selectedTags, disabledTags, onToggle, onCle
         <Link
           href="/"
           className={cn(
-            "rounded-full px-4 py-3 text-sm font-bold transition-colors",
-            selectedTags.length === 0
-              ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-100"
-              : "bg-white text-gray-600 hover:bg-rose-50 border border-gray-200"
+            baseButtonClass,
+            selectedTags.length === 0 ? defaultActive : inactiveClass,
+            "inline-block"
           )}
         >
           すべて
@@ -63,12 +76,17 @@ export const TagFilter = ({ allTags, selectedTags, disabledTags, onToggle, onCle
         const isSelected = selectedTags.includes(tag);
         const isDisabled = !isSelected && disabledTags.includes(tag);
 
+        // Dynamic styling
+        const theme = getFruitTheme(tag);
+        const activeColorClass = ACTIVE_COLOR_MAP[theme.bgColor] || defaultActive;
+        const dynamicActiveClass = cn(
+          "text-white shadow-md hover:-translate-y-0.5",
+          activeColorClass
+        );
+
         if (isDisabled) {
           return (
-            <span
-              key={tag}
-              className="rounded-full px-4 py-2 text-sm font-bold bg-gray-100 text-gray-300 border border-gray-100 cursor-not-allowed"
-            >
+            <span key={tag} className={cn(baseButtonClass, disabledClass)}>
               {tag}
             </span>
           );
@@ -80,12 +98,7 @@ export const TagFilter = ({ allTags, selectedTags, disabledTags, onToggle, onCle
               key={tag}
               onClick={() => onToggle(tag)}
               type="button"
-              className={cn(
-                "rounded-full px-4 py-3 text-sm font-bold transition-colors cursor-pointer",
-                isSelected
-                  ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-100"
-                  : "bg-white text-gray-600 hover:bg-rose-50 border border-gray-200"
-              )}
+              className={cn(baseButtonClass, isSelected ? dynamicActiveClass : inactiveClass)}
             >
               {tag}
             </button>
@@ -97,10 +110,9 @@ export const TagFilter = ({ allTags, selectedTags, disabledTags, onToggle, onCle
             key={tag}
             href={getToggleHref(tag)}
             className={cn(
-              "rounded-full px-4 py-3 text-sm font-bold transition-colors",
-              isSelected
-                ? "bg-rose-600 text-white shadow-md ring-2 ring-rose-100"
-                : "bg-white text-gray-600 hover:bg-rose-50 border border-gray-200"
+              baseButtonClass,
+              isSelected ? dynamicActiveClass : inactiveClass,
+              "inline-block"
             )}
           >
             {tag}

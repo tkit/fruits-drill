@@ -16,9 +16,9 @@ describe("TagFilter", () => {
   it("highlights selected tags", () => {
     render(<TagFilter allTags={allTags} selectedTags={["tag1"]} disabledTags={[]} />);
 
-    // "tag1" should have active styles (rose-600)
+    // "tag1" should have active styles (defaults to amber-500 for non-subject tags)
     const tag1 = screen.getByText("tag1");
-    expect(tag1).toHaveClass("bg-rose-600");
+    expect(tag1).toHaveClass("bg-amber-500");
 
     // "tag2" should have inactive styles
     const tag2 = screen.getByText("tag2");
