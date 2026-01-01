@@ -61,9 +61,12 @@ export const DrillListContainer = ({
   }, [initialSelectedTags]);
 
   // Update URL function
-  const updateUrl = useCallback((newParams: URLSearchParams) => {
-    router.push(`${pathname}?${newParams.toString()}`, { scroll: false });
-  }, [router, pathname]);
+  const updateUrl = useCallback(
+    (newParams: URLSearchParams) => {
+      router.push(`${pathname}?${newParams.toString()}`, { scroll: false });
+    },
+    [router, pathname]
+  );
 
   // Debounced search URL update
   useEffect(() => {
