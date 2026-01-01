@@ -7,6 +7,17 @@ jest.mock("@/features/drills/api/getDrills", () => ({
   getDrills: jest.fn(),
 }));
 
+// Mock Next.js navigation hooks
+const replaceMock = jest.fn();
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: replaceMock,
+    replace: replaceMock,
+  }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 describe("Home", () => {
   beforeEach(() => {
     jest.clearAllMocks();

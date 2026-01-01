@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Search, X } from "lucide-react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Drill } from "@/features/drills/types";
@@ -52,9 +52,9 @@ export const DrillListContainer = ({
   }, [initialSelectedTags]);
 
   // Update URL function
-  const updateUrl = (newParams: URLSearchParams) => {
+  const updateUrl = useCallback((newParams: URLSearchParams) => {
     router.push(`${pathname}?${newParams.toString()}`, { scroll: false });
-  };
+  }, [router, pathname]);
 
   // Debounced search URL update
   useEffect(() => {
@@ -74,7 +74,7 @@ export const DrillListContainer = ({
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchText, initialSearchText, searchParams, pathname, router]);
+  }, [searchText, initialSearchText, searchParams, updateUrl]);
 
   // Handle tag toggle
   const handleTagToggle = (tag: string) => {
