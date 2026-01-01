@@ -14,7 +14,8 @@ export function FaroInitializer() {
     const appEnv = process.env.NEXT_PUBLIC_FARO_APP_ENV || "production";
 
     // Skip if no URL provided (e.g. local dev without env vars)
-    if (!url || faroRef.current) return;
+    // Also skip in development environment to avoid console errors
+    if (!url || faroRef.current || process.env.NODE_ENV === "development") return;
 
     try {
       faroRef.current = initializeFaro({
