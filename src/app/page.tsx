@@ -1,7 +1,6 @@
 import { getDrills } from "@/features/drills/api/getDrills";
 import { getAllTags } from "@/features/drills/utils/filterDrills";
 import { DrillListContainer } from "@/features/drills/components/DrillListContainer";
-import Image from "next/image";
 
 export default async function Home({
   searchParams,
