@@ -47,7 +47,7 @@ export const getDrills = unstable_cache(
   },
   ["drills-list"],
   {
-    revalidate: 3600,
+    revalidate: 60,
     tags: ["drills"],
   }
 );
