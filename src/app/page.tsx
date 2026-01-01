@@ -2,15 +2,21 @@ import { getDrills } from "@/features/drills/api/getDrills";
 import { getAllTags } from "@/features/drills/utils/filterDrills";
 import { DrillListContainer } from "@/features/drills/components/DrillListContainer";
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ tags?: string }> }) {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ tags?: string; page?: string; q?: string }>;
+}) {
   const params = await searchParams;
   const drills = await getDrills();
 
   // Extract unique tags
   const allTags = getAllTags(drills);
 
-  // Parse selected tags from URL (comma separated)
+  // Parse parameters
   const selectedTags = params.tags ? params.tags.split(",").filter(Boolean) : [];
+  const currentPage = Number(params.page) || 1;
+  const currentQuery = params.q || "";
 
   return (
     <div className="space-y-10">
@@ -25,7 +31,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
         </p>
       </section>
 
-      <DrillListContainer drills={drills} allTags={allTags} initialSelectedTags={selectedTags} />
+      <DrillListContainer
+        drills={drills}
+        allTags={allTags}
+        initialSelectedTags={selectedTags}
+        initialPage={currentPage}
+        initialSearchText={currentQuery}
+      />
     </div>
   );
 }
