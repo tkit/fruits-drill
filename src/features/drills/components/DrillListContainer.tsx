@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useTransition } from "react";
 import { Search, X } from "lucide-react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Drill } from "@/features/drills/types";
@@ -38,17 +38,26 @@ export const DrillListContainer = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Local state for immediate UI feedback
+  // useTransition for non-blocking UI updates
+  const [isPending, startTransition] = useTransition();
+
+  // Local state for immediate UI feedback (Input & Checkboxes)
   const [searchText, setSearchText] = useState(initialSearchText);
   const [selectedTags, setSelectedTags] = useState<string[]>(initialSelectedTags);
+
+  // Deferred state for heavy filtering logic
+  const [deferredSearchText, setDeferredSearchText] = useState(initialSearchText);
+  const [deferredSelectedTags, setDeferredSelectedTags] = useState<string[]>(initialSelectedTags);
 
   // Sync local state with props (e.g. on browser back/forward navigation)
   useEffect(() => {
     setSearchText(initialSearchText);
+    setDeferredSearchText(initialSearchText);
   }, [initialSearchText]);
 
   useEffect(() => {
     setSelectedTags(initialSelectedTags);
+    setDeferredSelectedTags(initialSelectedTags);
   }, [initialSelectedTags]);
 
   // Update URL function
@@ -76,6 +85,14 @@ export const DrillListContainer = ({
     return () => clearTimeout(timer);
   }, [searchText, initialSearchText, searchParams, updateUrl]);
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchText(value);
+    startTransition(() => {
+      setDeferredSearchText(value);
+    });
+  };
+
   // Handle tag toggle
   const handleTagToggle = (tag: string) => {
     const newTags = selectedTags.includes(tag)
@@ -83,6 +100,10 @@ export const DrillListContainer = ({
       : [...selectedTags, tag];
 
     setSelectedTags(newTags); // Immediate UI update
+
+    startTransition(() => {
+      setDeferredSelectedTags(newTags); // Deferred filter update
+    });
 
     // Update URL
     const params = new URLSearchParams(searchParams);
@@ -98,6 +119,10 @@ export const DrillListContainer = ({
 
   const handleClearTags = () => {
     setSelectedTags([]);
+    startTransition(() => {
+      setDeferredSelectedTags([]);
+    });
+
     const params = new URLSearchParams(searchParams);
     params.delete("tags");
     params.delete("page");
@@ -106,17 +131,21 @@ export const DrillListContainer = ({
 
   const handleClearSearch = () => {
     setSearchText("");
+    startTransition(() => {
+      setDeferredSearchText("");
+    });
     // URL update will happen via useEffect
   };
 
   // Filter drills by search text AND selected tags
+  // Uses DEFERRED state to keep UI responsive
   const filteredDrills = useMemo(() => {
     // 1. Tag filtering
-    let result = filterDrills(drills, selectedTags);
+    let result = filterDrills(drills, deferredSelectedTags);
 
     // 2. Text filtering
-    if (searchText.trim()) {
-      const lowerQuery = searchText.toLowerCase().trim();
+    if (deferredSearchText.trim()) {
+      const lowerQuery = deferredSearchText.toLowerCase().trim();
       result = result.filter((drill) => {
         // Search in title
         if (drill.title.toLowerCase().includes(lowerQuery)) return true;
@@ -127,7 +156,7 @@ export const DrillListContainer = ({
     }
 
     return result;
-  }, [drills, selectedTags, searchText]);
+  }, [drills, deferredSelectedTags, deferredSearchText]);
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredDrills.length / ITEMS_PER_PAGE);
@@ -137,19 +166,19 @@ export const DrillListContainer = ({
     currentPage * ITEMS_PER_PAGE
   );
 
-  // Calculate disabled tags
+  // Calculate disabled tags using DEFERRED state
   const disabledTags = useMemo(() => {
     let baseDrills = drills;
-    if (searchText.trim()) {
-      const lowerQuery = searchText.toLowerCase().trim();
+    if (deferredSearchText.trim()) {
+      const lowerQuery = deferredSearchText.toLowerCase().trim();
       baseDrills = drills.filter((drill) => {
         if (drill.title.toLowerCase().includes(lowerQuery)) return true;
         if (drill.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery))) return true;
         return false;
       });
     }
-    return calculateDisabledTags(baseDrills, selectedTags, allTags);
-  }, [drills, selectedTags, allTags, searchText]);
+    return calculateDisabledTags(baseDrills, deferredSelectedTags, allTags);
+  }, [drills, deferredSelectedTags, allTags, deferredSearchText]);
 
   // Helper to create pagination links
   const createPageUrl = (pageInfo: number | string) => {
@@ -170,7 +199,7 @@ export const DrillListContainer = ({
           className="w-full pl-10 pr-10 py-3 rounded-full border-2 border-gray-200 focus:border-rose-500 focus:outline-none focus:ring-4 focus:ring-rose-100 transition-all text-gray-700 placeholder-gray-400"
           placeholder="キーワードでドリルを探す..."
           value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
+          onChange={handleSearchChange}
         />
         {searchText && (
           <button
@@ -198,7 +227,11 @@ export const DrillListContainer = ({
       <section>
         {filteredDrills.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12 transition-opacity duration-200 ${
+                isPending ? "opacity-50" : "opacity-100"
+              }`}
+            >
               {paginatedDrills.map((drill, index) => (
                 <DrillCard key={drill.id} drill={drill} priority={index < 4} />
               ))}

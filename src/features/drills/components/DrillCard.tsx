@@ -1,3 +1,4 @@
+import { memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { Drill } from "../types";
@@ -7,7 +8,7 @@ type Props = {
   priority?: boolean;
 };
 
-export const DrillCard = ({ drill, priority = false }: Props) => {
+export const DrillCard = memo(({ drill, priority = false }: Props) => {
   return (
     <Link
       href={`/drills/${drill.id}`}
@@ -42,4 +43,6 @@ export const DrillCard = ({ drill, priority = false }: Props) => {
       </div>
     </Link>
   );
-};
+});
+
+DrillCard.displayName = "DrillCard";
