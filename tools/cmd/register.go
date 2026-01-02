@@ -71,6 +71,10 @@ var registerCmd = &cobra.Command{
 
 		log.Printf("Found %d PDF files.", len(pdfFiles))
 
+		if len(pdfFiles) > 1 && titleRaw != "" {
+			log.Fatalf("Cannot specify --title when registering multiple files.")
+		}
+
 		// Parse tags
 		var tags []string
 		if tagsRaw != "" {
@@ -83,8 +87,9 @@ var registerCmd = &cobra.Command{
 		}
 
 		// 4. Process Loop
+		// 4. Process Loop
 		for _, pdfPath := range pdfFiles {
-			processFile(ctx, pdfPath, repo, thumbGen, tags, descRaw)
+			processFile(ctx, pdfPath, repo, thumbGen, tags, descRaw, titleRaw)
 		}
 	},
 }
@@ -93,9 +98,10 @@ func init() {
 	rootCmd.AddCommand(registerCmd)
 	registerCmd.Flags().StringVar(&tagsRaw, "tags", "", "Comma-separated tags")
 	registerCmd.Flags().StringVar(&descRaw, "desc", "", "Description text")
+	registerCmd.Flags().StringVar(&titleRaw, "title", "", "Title override (if registering single file)")
 }
 
-func processFile(ctx context.Context, pdfPath string, repo *repository.SupabaseRepository, tb *thumbnail.Generator, tags []string, desc string) {
+func processFile(ctx context.Context, pdfPath string, repo *repository.SupabaseRepository, tb *thumbnail.Generator, tags []string, desc, titleOverride string) {
 	log.Printf("Processing: %s", pdfPath)
 
 	// 1. Calculate Hash of the PDF
@@ -162,7 +168,10 @@ func processFile(ctx context.Context, pdfPath string, repo *repository.SupabaseR
 
 	// 6. Register
 	log.Println("  -> Registering to Supabase DB...")
-	title := strings.TrimSuffix(filepath.Base(pdfPath), filepath.Ext(pdfPath))
+	title := titleOverride
+	if title == "" {
+		title = strings.TrimSuffix(filepath.Base(pdfPath), filepath.Ext(pdfPath))
+	}
 
 	id, err := repo.RegisterDrill(ctx, title, desc, uploadedPDFURL, thumbURL, tags)
 	if err != nil {

@@ -12,6 +12,7 @@ var (
 	configPath string
 	tagsRaw    string
 	descRaw    string
+	titleRaw   string
 )
 
 var rootCmd = &cobra.Command{
