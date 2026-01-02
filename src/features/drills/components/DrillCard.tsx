@@ -1,13 +1,14 @@
 import { memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Apple, Grape, Leaf, BookOpen, Citrus } from "lucide-react";
+import { Apple, Grape, Leaf, BookOpen, Citrus, Download } from "lucide-react";
 import type { Drill } from "../types";
 import { getFruitTheme } from "@/features/drills/utils/filterDrills";
 
 type Props = {
   drill: Drill;
   priority?: boolean;
+  queryParams?: string;
 };
 
 const IconMap = {
@@ -18,10 +19,10 @@ const IconMap = {
   book: BookOpen,
 };
 
-export const DrillCard = memo(({ drill, priority = false }: Props) => {
+export const DrillCard = memo(({ drill, priority = false, queryParams = "" }: Props) => {
   return (
     <Link
-      href={`/drills/${drill.id}`}
+      href={`/drills/${drill.id}${queryParams}`}
       className="group block overflow-hidden rounded-[2rem] bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-border/60 hover:border-rose-200"
     >
       <div className="aspect-square w-full overflow-hidden bg-secondary/30 relative">
@@ -34,6 +35,20 @@ export const DrillCard = memo(({ drill, priority = false }: Props) => {
           sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Quick Download Button */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            window.open(drill.pdf, "_blank");
+          }}
+          className="absolute bottom-3 right-3 p-2.5 bg-white/90 hover:bg-rose-500 hover:text-white text-rose-600 rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 z-10"
+          title="直接ダウンロード"
+          aria-label={`${drill.title}をダウンロード`}
+        >
+          <Download size={20} className="stroke-[2.5px]" />
+        </button>
       </div>
       <div className="p-5">
         <h3 className="text-lg font-bold text-gray-800 group-hover:text-rose-600 transition-colors line-clamp-2 leading-snug">

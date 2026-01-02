@@ -235,9 +235,22 @@ export const DrillListContainer = ({
                 isPending ? "opacity-50" : "opacity-100"
               }`}
             >
-              {paginatedDrills.map((drill, index) => (
-                <DrillCard key={drill.id} drill={drill} priority={index < 4} />
-              ))}
+              {paginatedDrills.map((drill, index) => {
+                const params = new URLSearchParams();
+                if (deferredSelectedTags.length > 0)
+                  params.set("tags", deferredSelectedTags.join(","));
+                if (deferredSearchText) params.set("q", deferredSearchText);
+                const queryString = params.toString() ? `?${params.toString()}` : "";
+
+                return (
+                  <DrillCard
+                    key={drill.id}
+                    drill={drill}
+                    priority={index < 4}
+                    queryParams={queryString}
+                  />
+                );
+              })}
             </div>
 
             {/* Pagination Controls */}
