@@ -54,6 +54,7 @@ export default async function DrillModalPage({ params, searchParams }: Props) {
         prevDrillId={prevDrill?.id}
         nextDrillId={nextDrill?.id}
         queryParams={queryString}
+        useReplaceNavigation={true}
       />
     </Modal>
   );

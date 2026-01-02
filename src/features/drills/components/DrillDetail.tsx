@@ -9,9 +9,16 @@ type Props = {
   prevDrillId?: string;
   nextDrillId?: string;
   queryParams?: string;
+  useReplaceNavigation?: boolean;
 };
 
-export const DrillDetail = ({ drill, prevDrillId, nextDrillId, queryParams = "" }: Props) => {
+export const DrillDetail = ({
+  drill,
+  prevDrillId,
+  nextDrillId,
+  queryParams = "",
+  useReplaceNavigation = false,
+}: Props) => {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-3xl overflow-hidden shadow-lg border-4 border-amber-100 mb-8">
@@ -78,6 +85,7 @@ export const DrillDetail = ({ drill, prevDrillId, nextDrillId, queryParams = "" 
         {prevDrillId ? (
           <Link
             href={`/drills/${prevDrillId}${queryParams}`}
+            replace={useReplaceNavigation}
             className="group flex items-center bg-white/90 hover:bg-white text-rose-600 px-4 py-2.5 rounded-full shadow-sm hover:shadow-md backdrop-blur-sm border border-rose-100 transition-all duration-300 transform hover:-translate-x-1"
           >
             <ChevronLeft className="w-5 h-5 mr-1 group-hover:scale-110 transition-transform" />
@@ -90,6 +98,7 @@ export const DrillDetail = ({ drill, prevDrillId, nextDrillId, queryParams = "" 
         {nextDrillId ? (
           <Link
             href={`/drills/${nextDrillId}${queryParams}`}
+            replace={useReplaceNavigation}
             className="group flex items-center bg-white/90 hover:bg-white text-rose-600 px-4 py-2.5 rounded-full shadow-sm hover:shadow-md backdrop-blur-sm border border-rose-100 transition-all duration-300 transform hover:translate-x-1"
           >
             <span className="font-bold text-sm">次のドリル</span>
