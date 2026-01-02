@@ -42,16 +42,18 @@ export const Modal = ({ children }: { children: React.ReactNode }) => {
     >
       <div
         ref={wrapperRef}
-        className="relative w-full max-w-2xl bg-transparent animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-2xl max-h-[85vh] flex flex-col bg-transparent animate-in zoom-in-95 duration-200"
       >
-        <button
-          onClick={onDismiss}
-          className="absolute -top-12 right-0 md:-right-12 p-2 text-white hover:bg-white/20 rounded-full transition-colors"
-          aria-label="Close modal"
-        >
-          <X className="w-8 h-8" />
-        </button>
-        {children}
+        <div className="relative flex-1 overflow-y-auto rounded-3xl no-scrollbar">
+          <button
+            onClick={onDismiss}
+            className="fixed z-50 top-4 right-4 md:absolute md:top-4 md:right-4 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors backdrop-blur-sm touch-manipulation"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
+          {children}
+        </div>
       </div>
     </div>
   );

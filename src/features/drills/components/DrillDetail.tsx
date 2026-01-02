@@ -9,7 +9,7 @@ type Props = {
 export const DrillDetail = ({ drill }: Props) => {
   return (
     <div className="bg-white rounded-3xl overflow-hidden shadow-lg max-w-2xl mx-auto border-4 border-amber-100">
-      <div className="relative aspect-[4/3] w-full bg-amber-50">
+      <div className="relative aspect-[16/9] w-full bg-amber-50">
         <Image
           src={drill.thumbnail.url}
           alt={drill.title}
@@ -20,11 +20,13 @@ export const DrillDetail = ({ drill }: Props) => {
         />
       </div>
 
-      <div className="p-6 md:p-8 flex flex-col items-center text-center space-y-6">
+      <div className="p-4 flex flex-col items-center text-center space-y-3">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">{drill.title}</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">{drill.title}</h1>
           {drill.description && (
-            <p className="text-gray-600 leading-relaxed">{drill.description}</p>
+            <p className="text-sm text-gray-600 leading-relaxed max-w-lg mx-auto">
+              {drill.description}
+            </p>
           )}
         </div>
 
@@ -33,7 +35,7 @@ export const DrillDetail = ({ drill }: Props) => {
             {drill.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800"
+                className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800"
               >
                 {tag}
               </span>
@@ -41,23 +43,22 @@ export const DrillDetail = ({ drill }: Props) => {
           </div>
         )}
 
-        <div className="w-full max-w-sm">
+        <div className="w-full flex justify-center items-center gap-4 mt-2">
           <a
             href={drill.pdf}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-3 w-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-lg py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl hover:translate-y-[-2px] transition-all duration-300"
+            className="flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm py-2 px-6 rounded-full shadow-md hover:shadow-lg hover:translate-y-[-1px] transition-all duration-300"
           >
-            <Download className="w-6 h-6" />
-            ダウンロードする
+            <Download className="w-4 h-4" />
+            ダウンロード
           </a>
-          <p className="mt-2 text-xs text-gray-400">PDFファイルが開きます</p>
-        </div>
 
-        <div className="pt-4 border-t border-gray-100 w-full">
           <ShareButtons
             title={`${drill.title} | ふるーつドリル`}
             url={typeof window !== "undefined" ? window.location.href : ""}
+            size="sm"
+            showLabel={false}
           />
         </div>
       </div>
