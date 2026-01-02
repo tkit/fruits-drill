@@ -37,6 +37,8 @@ export default async function Home({
             <p className="text-lg text-gray-700 leading-relaxed font-medium">
               ニガテな単元も、得意な教科も。
               <br />
+              全てのドリルに解答付きで丸付けも簡単。
+              <br />
               ご家庭で自由に印刷して使える、
               <br />
               小学生向け無料ドリルサイトです。

@@ -43,23 +43,26 @@ export const DrillDetail = ({ drill }: Props) => {
           </div>
         )}
 
-        <div className="w-full flex justify-center items-center gap-4 mt-2">
-          <a
-            href={drill.pdf}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm py-2 px-6 rounded-full shadow-md hover:shadow-lg hover:translate-y-[-1px] transition-all duration-300"
-          >
-            <Download className="w-4 h-4" />
-            ダウンロード
-          </a>
+        <div className="w-full flex flex-col items-center gap-2 mt-2">
+          <div className="flex justify-center items-center gap-4">
+            <a
+              href={drill.pdf}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm py-2 px-6 rounded-full shadow-md hover:shadow-lg hover:translate-y-[-1px] transition-all duration-300"
+            >
+              <Download className="w-4 h-4" />
+              ダウンロード (解答付き)
+            </a>
 
-          <ShareButtons
-            title={`${drill.title} | ふるーつドリル`}
-            url={typeof window !== "undefined" ? window.location.href : ""}
-            size="sm"
-            showLabel={false}
-          />
+            <ShareButtons
+              title={`${drill.title} | ふるーつドリル`}
+              url={typeof window !== "undefined" ? window.location.href : ""}
+              size="sm"
+              showLabel={false}
+            />
+          </div>
+          <p className="text-xs text-gray-500">※ 最後のページに解答がついています</p>
         </div>
       </div>
     </div>
