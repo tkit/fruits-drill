@@ -5,12 +5,20 @@ import { unstable_cache } from "next/cache";
 
 export const getDrills = unstable_cache(
   async (): Promise<Drill[]> => {
-    // Join drills and drill_tags -> tags
-    // Select only necessary columns for the list view
-    const { data: drills, error } = await supabase
-      .from("drills")
-      .select(
-        `
+    // Retry logic configuration
+    const MAX_RETRIES = 3;
+    const INITIAL_RETRY_DELAY = 500; // ms
+
+    let lastError: unknown;
+
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        // Join drills and drill_tags -> tags
+        // Select only necessary columns for the list view
+        const { data: drills, error } = await supabase
+          .from("drills")
+          .select(
+            `
                 id,
                 title,
                 thumbnail_url,
@@ -22,28 +30,44 @@ export const getDrills = unstable_cache(
                     )
                 )
             `
-      )
-      .order("created_at", { ascending: false });
+          )
+          .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Failed to fetch drills:", error);
-      return [];
+        if (error) {
+          throw error;
+        }
+
+        if (!drills) return [];
+
+        return drills.map((d) => ({
+          id: d.id,
+          title: d.title,
+          thumbnail: {
+            url: d.thumbnail_url,
+          },
+          pdf: d.pdf_url,
+          description: undefined, // List view generally doesn't show description
+          tags: d.drill_tags?.map((dt) => dt.tags?.name).filter(Boolean) || [],
+          publishedAt: d.created_at,
+          revisedAt: d.created_at,
+        }));
+      } catch (err) {
+        console.error(`Attempt ${attempt + 1} failed:`, err);
+        lastError = err;
+
+        // Calculate delay with exponential backoff
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt);
+
+        if (attempt < MAX_RETRIES - 1) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
     }
 
-    if (!drills) return [];
-
-    return drills.map((d) => ({
-      id: d.id,
-      title: d.title,
-      thumbnail: {
-        url: d.thumbnail_url,
-      },
-      pdf: d.pdf_url,
-      description: undefined, // List view generally doesn't show description
-      tags: d.drill_tags?.map((dt) => dt.tags?.name).filter(Boolean) || [],
-      publishedAt: d.created_at,
-      revisedAt: d.created_at,
-    }));
+    // If all retries fail, rethrow the last error
+    // This ensures unstable_cache doesn't cache the "empty" result
+    console.error("All retry attempts failed for getDrills");
+    throw lastError;
   },
   ["drills-list"],
   {
