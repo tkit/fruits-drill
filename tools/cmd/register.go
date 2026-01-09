@@ -81,6 +81,9 @@ var registerCmd = &cobra.Command{
 		for _, pdfPath := range pdfFiles {
 			processFile(ctx, pdfPath, repo, thumbGen, tags, descRaw, titleRaw)
 		}
+
+		// 5. Revalidate
+		revalidate(cfg, "drills")
 	},
 }
 

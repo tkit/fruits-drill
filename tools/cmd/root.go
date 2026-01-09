@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -40,4 +41,26 @@ func loadConfig() (*config.Config, error) {
 		return config.LoadFromFile(configPath)
 	}
 	return config.Load()
+}
+
+func revalidate(cfg *config.Config, tag string) {
+	if cfg.AppURL == "" || cfg.RevalidateToken == "" {
+		fmt.Println("[INFO] Skipping revalidation: app_url or revalidate_token not set.")
+		return
+	}
+
+	url := fmt.Sprintf("%s/api/revalidate?tag=%s&secret=%s", cfg.AppURL, tag, cfg.RevalidateToken)
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Printf("[WARNING] Failed to request revalidation: %v\n", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("[WARNING] Revalidation failed with status: %s\n", resp.Status)
+		return
+	}
+
+	fmt.Printf("[SUCCESS] Revalidation trigger send for tag: %s\n", tag)
 }

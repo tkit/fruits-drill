@@ -12,6 +12,9 @@ type Config struct {
 	SupabaseURL            string `yaml:"supabase_url"`
 	SupabaseServiceRoleKey string `yaml:"supabase_service_role_key"`
 	SupabaseBucketName     string `yaml:"supabase_bucket_name"`
+	// Revalidation
+	AppURL          string `yaml:"app_url"`
+	RevalidateToken string `yaml:"revalidate_token"`
 }
 
 func Load() (*Config, error) {
@@ -20,6 +23,8 @@ func Load() (*Config, error) {
 		SupabaseURL:            os.Getenv("SUPABASE_URL"),
 		SupabaseServiceRoleKey: os.Getenv("SUPABASE_SERVICE_ROLE_KEY"),
 		SupabaseBucketName:     os.Getenv("SUPABASE_BUCKET_NAME"),
+		AppURL:                 os.Getenv("APP_URL"),
+		RevalidateToken:        os.Getenv("REVALIDATE_TOKEN"),
 	}
 	return cfg, nil
 }

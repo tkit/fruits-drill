@@ -141,6 +141,9 @@ var deleteCmd = &cobra.Command{
 		}
 
 		log.Println("[SUCCESS] Deletion complete.")
+
+		// 8. Revalidate
+		revalidate(cfg, "drills")
 	},
 }
 

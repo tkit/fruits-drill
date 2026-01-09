@@ -107,7 +107,7 @@ func TestDeleteFlow(t *testing.T) {
 		t.Fatal("Drill should be gone")
 	}
 
-	// 6. Verify Tag usage is 0 (Orphan check logic in CLI relies on this count before delete, 
+	// 6. Verify Tag usage is 0 (Orphan check logic in CLI relies on this count before delete,
 	//    but after delete, the link is gone, so count should be 0)
 	count2, err := repo.CountDrillsForTag(ctx, tagID)
 	if err != nil {

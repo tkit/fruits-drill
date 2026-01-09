@@ -211,7 +211,7 @@ func (r *SupabaseRepository) GetDrillTags(ctx context.Context, drillID string) (
 	// Join drill_tags and tags
 	// SELECT tags.* FROM drill_tags JOIN tags ON drill_tags.tag_id = tags.id WHERE drill_id = ?
 	// Postgrest: select(tag_id, tags(*))
-	
+
 	type DrillTagWithTag struct {
 		TagID string `json:"tag_id"`
 		Tag   Tag    `json:"tags"`
@@ -232,7 +232,7 @@ func (r *SupabaseRepository) GetDrillTags(ctx context.Context, drillID string) (
 
 // DeleteDrill deletes a drill record.
 func (r *SupabaseRepository) DeleteDrill(ctx context.Context, drillID string) error {
-	// First delete relations in drill_tags? 
+	// First delete relations in drill_tags?
 	// If CASCADE is not set up in DB, we must delete manually.
 	// But `Delete` on `drills` will fail if there are foreign keys without cascade.
 	// We will attempt to delete drill_tags first just in case.
