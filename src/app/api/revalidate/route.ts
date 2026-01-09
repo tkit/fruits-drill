@@ -13,10 +13,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Missing tag param" }, { status: 400 });
   }
 
-  // "max" argument is required in newer Next.js versions to silence deprecation warning
-  // and indicates immediate invalidation.
-  // @ts-ignore - The types might not be updated yet in all environments
-  revalidateTag(tag, "max"); 
+  revalidateTag(tag, "max");
 
   return NextResponse.json({ revalidated: true, now: Date.now() });
 }
