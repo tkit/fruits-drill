@@ -6,6 +6,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
+	"github.com/tkit/fruits-drill/tools/internal/config"
 )
 
 var (
@@ -32,4 +33,11 @@ func init() {
 	// Load .env file if it exists
 	_ = godotenv.Load()
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "", "Path to config file")
+}
+
+func loadConfig() (*config.Config, error) {
+	if configPath != "" {
+		return config.LoadFromFile(configPath)
+	}
+	return config.Load()
 }

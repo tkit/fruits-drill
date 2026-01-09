@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/tkit/fruits-drill/tools/internal/config"
 	"github.com/tkit/fruits-drill/tools/internal/repository"
 )
 
@@ -26,7 +25,7 @@ var deleteCmd = &cobra.Command{
 		ctx := context.Background()
 
 		// 1. Load Config
-		cfg, err := config.Load()
+		cfg, err := loadConfig()
 		if err != nil {
 			log.Fatalf("Failed to load config: %v", err)
 		}
@@ -66,7 +65,7 @@ var deleteCmd = &cobra.Command{
 			count, err := repo.CountDrillsForTag(ctx, t.ID)
 			if err != nil {
 				log.Printf("Failed to count usage for tag %s: %v", t.Name, err)
-				keptTags = append(keptTags, t) 
+				keptTags = append(keptTags, t)
 				continue
 			}
 			// If count is 1, it's only used by this drill (which we are deleting)
@@ -112,7 +111,7 @@ var deleteCmd = &cobra.Command{
 
 		// 7. Execute Delete
 		// Delete relationship is handled by DeleteDrill if DB cascade logic or simple delete order.
-		
+
 		// Delete Drill
 		log.Println("Deleting Drill record...")
 		if err := repo.DeleteDrill(ctx, drill.ID); err != nil {
@@ -169,6 +168,6 @@ func extractPathFromURL(fullURL, supabaseURL, bucketName string) (string, error)
 	if strings.HasPrefix(u.Path, prefixNoSlash) {
 		return strings.TrimPrefix(u.Path, prefixNoSlash), nil
 	}
-	
+
 	return "", fmt.Errorf("url does not match expected storage format")
 }

@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/tkit/fruits-drill/tools/internal/config"
 	"github.com/tkit/fruits-drill/tools/internal/repository"
 	"github.com/tkit/fruits-drill/tools/internal/thumbnail"
 )
@@ -25,20 +24,11 @@ var registerCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		// 1. Load Config
-		var cfg *config.Config
-		var err error
-		if configPath != "" {
-			cfg, err = config.LoadFromFile(configPath)
-			if err != nil {
-				log.Fatalf("Failed to load config from %s: %v", configPath, err)
-			}
-		} else {
-			cfg, err = config.Load()
-			if err != nil {
-				log.Fatalf("Failed to load config: %v", err)
-			}
+		cfg, err := loadConfig()
+		if err != nil {
+			log.Fatalf("Failed to load config: %v", err)
 		}
-		
+
 		if err := cfg.Validate(); err != nil {
 			log.Fatalf("Invalid configuration: %v", err)
 		}
