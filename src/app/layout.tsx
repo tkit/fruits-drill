@@ -10,6 +10,7 @@ const zenMaruGothic = Zen_Maru_Gothic({
   weight: ["500", "700"],
   subsets: ["latin"],
   variable: "--font-zen-maru",
+  display: "swap",
 });
 
 const defaultUrl = process.env.NEXT_PUBLIC_BASE_URL

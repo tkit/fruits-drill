@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getWebInstrumentations, initializeFaro, Faro } from "@grafana/faro-web-sdk";
-import { TracingInstrumentation } from "@grafana/faro-web-tracing";
+import type { Faro } from "@grafana/faro-web-sdk";
 
 export function FaroInitializer() {
   const faroRef = useRef<Faro | null>(null);
@@ -17,19 +16,26 @@ export function FaroInitializer() {
     // Also skip in development environment to avoid console errors
     if (!url || faroRef.current || process.env.NODE_ENV === "development") return;
 
-    try {
-      faroRef.current = initializeFaro({
-        url,
-        app: {
-          name: appName || "fruits-drill",
-          version: appVersion,
-          environment: appEnv,
-        },
-        instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
-      });
-    } catch (error) {
-      console.error("Faro initialization failed", error);
-    }
+    const init = async () => {
+      try {
+        const { getWebInstrumentations, initializeFaro } = await import("@grafana/faro-web-sdk");
+        const { TracingInstrumentation } = await import("@grafana/faro-web-tracing");
+
+        faroRef.current = initializeFaro({
+          url,
+          app: {
+            name: appName || "fruits-drill",
+            version: appVersion,
+            environment: appEnv,
+          },
+          instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
+        });
+      } catch (error) {
+        console.error("Faro initialization failed", error);
+      }
+    };
+
+    init();
   }, []);
 
   return null;
