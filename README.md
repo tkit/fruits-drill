@@ -8,6 +8,7 @@
 - **Frontend**: Next.js (App Router), TypeScript, Tailwind CSS
 - **UI Components**: shadcn/ui, Lucide React
 - **Backend / DB**: Supabase (PostgreSQL, Storage)
+- **Deployment**: Vercel
 - **Observability**: Grafana Faro Web SDK
 - **Tooling**: Go (CLI for content management)
 
