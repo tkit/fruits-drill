@@ -77,3 +77,9 @@ export R2_BUCKET="fruits-drill"
 
 - `import_d1_data.sh` は `DELETE` を含むSQLを実行するため、対象DBを必ず確認してください。
 - この手順はダウンタイム許容の一括切替向けです。
+
+## 切替当日ランブック
+
+本番切替手順は以下を参照してください。
+
+- `tools/migration/cutover_runbook.md`
