@@ -12,7 +12,7 @@
 - **Frontend**: Next.js (App Router), TypeScript
 - **Styling**: Tailwind CSS, shadcn/ui (Base Color: Slate)
 - **Icons**: **Lucide React**
-- **Database / CMS / Storage**: **Supabase** (PostgreSQL / Storage)
+- **Database / Storage**: **Cloudflare D1 / R2**
 - **Deployment**: Cloudflare Workers (OpenNext)
 - **Testing**: **Jest**, **React Testing Library**
 - **Admin Tool**: **Go (Golang)**
@@ -24,10 +24,10 @@
 - `src/features/drills`: ドリル関連のドメインロジック・コンポーネント (api, components, types)
 - `src/components/ui`: shadcn/ui コンポーネント
 - `src/components/layout`: Header (ロゴ表示), Footer など
-- `src/lib/supabase.ts`: Supabaseクライアント初期化
+- `src/lib/d1.ts`: D1クエリ実行レイヤー
 - `tools/`: 管理用CLIツールのソースコード
 
-## 4. データ設計 (Supabase Database Schema)
+## 4. データ設計 (D1 Schema)
 
 以下のテーブル構造でデータを管理する。
 
@@ -35,26 +35,26 @@
 
 | カラム名        | 型        | 制約                            | 備考                      |
 | --------------- | --------- | ------------------------------- | ------------------------- |
-| `id`            | uuid      | PK, default `gen_random_uuid()` |                           |
+| `id`            | text      | PK                              |                           |
 | `title`         | text      | NOT NULL                        |                           |
 | `description`   | text      |                                 |                           |
 | `pdf_url`       | text      | NOT NULL                        | Supabase Storageの公開URL |
 | `thumbnail_url` | text      | NOT NULL                        | Supabase Storageの公開URL |
-| `created_at`    | timestamp |                                 |                           |
+| `created_at`    | text      |                                 | ISO8601文字列            |
 
 ### `tags` テーブル
 
 | カラム名 | 型   | 制約                            | 備考                   |
 | -------- | ---- | ------------------------------- | ---------------------- |
-| `id`     | uuid | PK, default `gen_random_uuid()` |                        |
+| `id`     | text | PK                              |                        |
 | `name`   | text | NOT NULL, UNIQUE                | タグ名 (小1, 算数など) |
 
 ### `drill_tags` テーブル (中間テーブル)
 
 | カラム名   | 型   | 制約                    | 備考 |
 | ---------- | ---- | ----------------------- | ---- |
-| `drill_id` | uuid | FK(`drills.id`), PK複合 |      |
-| `tag_id`   | uuid | FK(`tags.id`), PK複合   |      |
+| `drill_id` | text | FK(`drills.id`), PK複合 |      |
+| `tag_id`   | text | FK(`tags.id`), PK複合   |      |
 
 ## 5. 実装詳細要件
 
@@ -133,8 +133,8 @@
 ## 6. 環境変数 (.env.local / tools/.env)
 
 - フロントエンド用 (.env.local):
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_BASE_URL`
+- `REVALIDATE_TOKEN`
 
 - CLIツール用 (tools/.env):
 - `SUPABASE_URL`

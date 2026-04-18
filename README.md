@@ -7,7 +7,7 @@
 
 - **Frontend**: Next.js (App Router), TypeScript, Tailwind CSS
 - **UI Components**: shadcn/ui, Lucide React
-- **Backend / DB**: Supabase (PostgreSQL, Storage)
+- **Backend / DB**: Cloudflare D1 (SQLite), R2 (planned migration target)
 - **Deployment**: Cloudflare Workers (OpenNext)
 - **Tooling**: Go (CLI for content management)
 
@@ -31,8 +31,8 @@
 **Web App (`.env.local`)**
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+NEXT_PUBLIC_BASE_URL=https://fruits-drill.stdy.workers.dev
+REVALIDATE_TOKEN=<your-random-token>
 ```
 
 **CLI Tool (`tools/.env`)**
@@ -68,6 +68,14 @@ npm run preview
 
 # 4) Deploy to your *.workers.dev subdomain
 npm run deploy
+```
+
+### 3.6 D1 Schema Initialization
+
+Set your actual D1 database ID in `wrangler.toml`, then apply schema:
+
+```bash
+npx wrangler d1 execute fruits-drill --remote --file docs/migrations/001_create_d1_schema.sql
 ```
 
 ### 4. Manage Content (CLI)

@@ -12,14 +12,6 @@ type Props = {
   searchParams: Promise<{ tags?: string; q?: string }>;
 };
 
-// Generate static params for static export if needed, or better performance
-export async function generateStaticParams() {
-  const drills = await getDrills();
-  return drills.map((drill) => ({
-    id: drill.id,
-  }));
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const drill = await getDrill(id);
