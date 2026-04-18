@@ -38,9 +38,8 @@ REVALIDATE_TOKEN=<your-random-token>
 **CLI Tool (`tools/.env`)**
 
 ```bash
-SUPABASE_URL=https://<project>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
-SUPABASE_BUCKET_NAME=drills
+ADMIN_API_BASE_URL=https://fruits-drill.stdy.workers.dev
+ADMIN_API_TOKEN=<admin-api-token>
 ```
 
 ### 3. Run Development Server
@@ -125,3 +124,7 @@ See [tools/README.md](tools/README.md) for details on how to register drill PDFs
 make go-build
 ./bin/fruits-cli register ./sample/drill.pdf
 ```
+
+### 5. One-time Data Migration (Supabase -> D1/R2)
+
+See [tools/migration/README.md](tools/migration/README.md) for full migration steps and verification scripts.
