@@ -8,12 +8,14 @@ set -euo pipefail
 # Optional env:
 #   EXPORT_DIR=tools/migration/export
 #   TMP_DIR=tools/migration/tmp
+#   R2_FLAGS=--remote
 
 : "${SUPABASE_BUCKET_NAME:?SUPABASE_BUCKET_NAME is required}"
 : "${R2_BUCKET:?R2_BUCKET is required}"
 
 EXPORT_DIR="${EXPORT_DIR:-tools/migration/export}"
 TMP_DIR="${TMP_DIR:-tools/migration/tmp}"
+R2_FLAGS="${R2_FLAGS:---remote}"
 DRILLS_JSON="$EXPORT_DIR/drills.json"
 
 [[ -f "$DRILLS_JSON" ]] || { echo "Missing file: $DRILLS_JSON"; exit 1; }
@@ -50,7 +52,7 @@ for line in "${entries[@]}"; do
   curl -fsSL "$url" -o "$local_file"
 
   echo "[UPLOAD] r2://${R2_BUCKET}/${key}"
-  npx wrangler r2 object put "${R2_BUCKET}/${key}" --file "$local_file" >/dev/null
+  npx wrangler r2 object put "${R2_BUCKET}/${key}" --file "$local_file" $R2_FLAGS >/dev/null
 
 done
 

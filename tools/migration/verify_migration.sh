@@ -8,12 +8,14 @@ set -euo pipefail
 #   D1_DATABASE=fruits-drill
 #   EXPORT_DIR=tools/migration/export
 #   D1_EXECUTE_FLAGS=--remote
+#   R2_FLAGS=--remote
 
 : "${R2_BUCKET:?R2_BUCKET is required}"
 
 D1_DATABASE="${D1_DATABASE:-fruits-drill}"
 EXPORT_DIR="${EXPORT_DIR:-tools/migration/export}"
 D1_EXECUTE_FLAGS="${D1_EXECUTE_FLAGS:---remote}"
+R2_FLAGS="${R2_FLAGS:---remote}"
 
 DRILLS_JSON="$EXPORT_DIR/drills.json"
 TAGS_JSON="$EXPORT_DIR/tags.json"
@@ -80,7 +82,7 @@ fi
 
 missing=0
 for key in "${keys[@]}"; do
-  if ! npx wrangler r2 object head "${R2_BUCKET}/${key}" >/dev/null 2>&1; then
+  if ! npx wrangler r2 object get "${R2_BUCKET}/${key}" --file /dev/null $R2_FLAGS >/dev/null 2>&1; then
     echo "  [MISSING] r2://${R2_BUCKET}/${key}"
     missing=$((missing + 1))
   fi
