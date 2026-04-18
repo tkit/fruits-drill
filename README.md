@@ -32,7 +32,7 @@
 
 ```bash
 NEXT_PUBLIC_BASE_URL=https://fruits-drill.stdy.workers.dev
-REVALIDATE_TOKEN=<your-random-token>
+ADMIN_API_TOKEN=<local-dev-admin-token>
 ```
 
 **CLI Tool (`tools/.env`)**
@@ -104,8 +104,6 @@ Set the admin API token in Cloudflare as a Worker secret.
 npx wrangler secret put ADMIN_API_TOKEN
 ```
 
-`REVALIDATE_TOKEN` is still supported as a fallback for backward compatibility.
-
 ### 3.9 Admin API Endpoints
 
 - `POST /api/admin/drills/register`
@@ -115,7 +113,7 @@ npx wrangler secret put ADMIN_API_TOKEN
 Authentication:
 
 - `Authorization: Bearer <ADMIN_API_TOKEN>`
-- (compat) query `?secret=<token>` is accepted on `GET /api/revalidate`
+- `x-admin-token: <ADMIN_API_TOKEN>`
 
 ### 4. Manage Content (CLI)
 

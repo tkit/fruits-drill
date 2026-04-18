@@ -9,9 +9,9 @@ directory = ".open-next/assets"
 binding = "ASSETS"
 
 [[d1_databases]]
-binding = "DB"
+binding = "fruits_drill"
 database_name = "fruits-drill"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "c7d639b8-0931-4eeb-935e-68fda6f9426c"
 
 [[r2_buckets]]
 binding = "DRILL_FILES"

@@ -43,30 +43,44 @@ function parseTags(tagsConcat: string | null): string[] {
     .filter(Boolean);
 }
 
+function isMissingTableError(error: unknown): boolean {
+  return error instanceof Error && /no such table/i.test(error.message);
+}
+
 export async function fetchDrillsFromD1(): Promise<Drill[]> {
   const db = await getD1Database();
 
-  const { results } = await db
-    .prepare(
-      `
-      SELECT
-        d.id,
-        d.title,
-        d.thumbnail_url,
-        d.pdf_url,
-        d.created_at,
-        (
-          SELECT group_concat(t.name, ?1)
-          FROM drill_tags dt
-          JOIN tags t ON t.id = dt.tag_id
-          WHERE dt.drill_id = d.id
-        ) AS tags_concat
-      FROM drills d
-      ORDER BY d.created_at DESC
-      `
-    )
-    .bind(TAG_SEPARATOR)
-    .all<DrillListRow>();
+  let results: DrillListRow[] | undefined;
+  try {
+    const response = await db
+      .prepare(
+        `
+        SELECT
+          d.id,
+          d.title,
+          d.thumbnail_url,
+          d.pdf_url,
+          d.created_at,
+          (
+            SELECT group_concat(t.name, ?1)
+            FROM drill_tags dt
+            JOIN tags t ON t.id = dt.tag_id
+            WHERE dt.drill_id = d.id
+          ) AS tags_concat
+        FROM drills d
+        ORDER BY d.created_at DESC
+        `
+      )
+      .bind(TAG_SEPARATOR)
+      .all<DrillListRow>();
+    results = response.results;
+  } catch (error) {
+    if (isMissingTableError(error)) {
+      console.warn("D1 schema is not initialized yet. Returning empty drills list.");
+      return [];
+    }
+    throw error;
+  }
 
   return (results ?? []).map((row) => ({
     id: row.id,
@@ -85,30 +99,39 @@ export async function fetchDrillsFromD1(): Promise<Drill[]> {
 export async function fetchDrillFromD1(contentId: string): Promise<Drill | null> {
   const db = await getD1Database();
 
-  const row = await db
-    .prepare(
-      `
-      SELECT
-        d.id,
-        d.title,
-        d.thumbnail_url,
-        d.pdf_url,
-        d.description,
-        d.created_at,
-        d.updated_at,
-        (
-          SELECT group_concat(t.name, ?1)
-          FROM drill_tags dt
-          JOIN tags t ON t.id = dt.tag_id
-          WHERE dt.drill_id = d.id
-        ) AS tags_concat
-      FROM drills d
-      WHERE d.id = ?2
-      LIMIT 1
-      `
-    )
-    .bind(TAG_SEPARATOR, contentId)
-    .first<DrillDetailRow>();
+  let row: DrillDetailRow | null;
+  try {
+    row = await db
+      .prepare(
+        `
+        SELECT
+          d.id,
+          d.title,
+          d.thumbnail_url,
+          d.pdf_url,
+          d.description,
+          d.created_at,
+          d.updated_at,
+          (
+            SELECT group_concat(t.name, ?1)
+            FROM drill_tags dt
+            JOIN tags t ON t.id = dt.tag_id
+            WHERE dt.drill_id = d.id
+          ) AS tags_concat
+        FROM drills d
+        WHERE d.id = ?2
+        LIMIT 1
+        `
+      )
+      .bind(TAG_SEPARATOR, contentId)
+      .first<DrillDetailRow>();
+  } catch (error) {
+    if (isMissingTableError(error)) {
+      console.warn("D1 schema is not initialized yet. Returning null drill detail.");
+      return null;
+    }
+    throw error;
+  }
 
   if (!row) return null;
 

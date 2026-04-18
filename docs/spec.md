@@ -134,7 +134,7 @@
 
 - フロントエンド用 (.env.local):
 - `NEXT_PUBLIC_BASE_URL`
-- `REVALIDATE_TOKEN`
+- `ADMIN_API_TOKEN`
 
 - CLIツール用 (tools/.env):
 - `SUPABASE_URL`
