@@ -13,7 +13,7 @@ const zenMaruGothic = Zen_Maru_Gothic({
 
 const defaultUrl = process.env.NEXT_PUBLIC_BASE_URL
   ? process.env.NEXT_PUBLIC_BASE_URL
-  : "https://fruits-drill.workers.dev";
+  : "https://fruits-drill.stdy.workers.dev";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),

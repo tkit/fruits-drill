@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getDrills } from "../features/drills/api/getDrills";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fruits-drill.workers.dev";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fruits-drill.stdy.workers.dev";
   const drills = await getDrills();
 
   const drillUrls: MetadataRoute.Sitemap = drills.map((drill) => ({
