@@ -21,3 +21,19 @@ export function resolveDrillAssetUrl(rawValue: string): string {
 
   return `${getBaseUrl()}/api/files/${encodedPath}`;
 }
+
+export function toR2Reference(key: string): string {
+  return `${R2_SCHEME}${key.replace(/^\/+/, "")}`;
+}
+
+export function extractR2Key(rawValue: string): string | null {
+  if (!rawValue) return null;
+
+  if (rawValue.startsWith(R2_SCHEME)) {
+    return rawValue.slice(R2_SCHEME.length).replace(/^\/+/, "");
+  }
+
+  if (/^https?:\/\//i.test(rawValue)) return null;
+
+  return rawValue.replace(/^\/+/, "");
+}

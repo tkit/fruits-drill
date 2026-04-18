@@ -96,6 +96,27 @@ When a value is stored as an R2 key, it is served via:
 
 - `/api/files/<object-key>`
 
+### 3.8 Admin API Token
+
+Set the admin API token in Cloudflare as a Worker secret.
+
+```bash
+npx wrangler secret put ADMIN_API_TOKEN
+```
+
+`REVALIDATE_TOKEN` is still supported as a fallback for backward compatibility.
+
+### 3.9 Admin API Endpoints
+
+- `POST /api/admin/drills/register`
+- `POST /api/admin/drills/delete`
+- `POST /api/revalidate`
+
+Authentication:
+
+- `Authorization: Bearer <ADMIN_API_TOKEN>`
+- (compat) query `?secret=<token>` is accepted on `GET /api/revalidate`
+
 ### 4. Manage Content (CLI)
 
 See [tools/README.md](tools/README.md) for details on how to register drill PDFs.
