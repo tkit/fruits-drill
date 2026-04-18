@@ -8,11 +8,14 @@ import (
 )
 
 type Config struct {
-	// Supabase
+	// Deprecated Supabase settings (kept for backward-compatible parsing only).
 	SupabaseURL            string `yaml:"supabase_url"`
 	SupabaseServiceRoleKey string `yaml:"supabase_service_role_key"`
 	SupabaseBucketName     string `yaml:"supabase_bucket_name"`
-	// Revalidation
+
+	AdminAPIBaseURL string `yaml:"admin_api_base_url"`
+	AdminAPIToken   string `yaml:"admin_api_token"`
+	// Backward-compatible aliases
 	AppURL          string `yaml:"app_url"`
 	RevalidateToken string `yaml:"revalidate_token"`
 }
@@ -23,8 +26,18 @@ func Load() (*Config, error) {
 		SupabaseURL:            os.Getenv("SUPABASE_URL"),
 		SupabaseServiceRoleKey: os.Getenv("SUPABASE_SERVICE_ROLE_KEY"),
 		SupabaseBucketName:     os.Getenv("SUPABASE_BUCKET_NAME"),
+		AdminAPIBaseURL:        os.Getenv("ADMIN_API_BASE_URL"),
+		AdminAPIToken:          os.Getenv("ADMIN_API_TOKEN"),
 		AppURL:                 os.Getenv("APP_URL"),
 		RevalidateToken:        os.Getenv("REVALIDATE_TOKEN"),
+	}
+
+	// Compatibility fallback to old names.
+	if cfg.AdminAPIBaseURL == "" {
+		cfg.AdminAPIBaseURL = cfg.AppURL
+	}
+	if cfg.AdminAPIToken == "" {
+		cfg.AdminAPIToken = cfg.RevalidateToken
 	}
 	return cfg, nil
 }
@@ -45,11 +58,11 @@ func LoadFromFile(path string) (*Config, error) {
 }
 
 func (c *Config) Validate() error {
-	if c.SupabaseURL == "" {
-		return fmt.Errorf("SupabaseURL is required (env: SUPABASE_URL or yaml: supabase_url)")
+	if c.AdminAPIBaseURL == "" {
+		return fmt.Errorf("AdminAPIBaseURL is required (env: ADMIN_API_BASE_URL or yaml: admin_api_base_url)")
 	}
-	if c.SupabaseServiceRoleKey == "" {
-		return fmt.Errorf("SupabaseServiceRoleKey is required (env: SUPABASE_SERVICE_ROLE_KEY or yaml: supabase_service_role_key)")
+	if c.AdminAPIToken == "" {
+		return fmt.Errorf("AdminAPIToken is required (env: ADMIN_API_TOKEN or yaml: admin_api_token)")
 	}
 	return nil
 }

@@ -11,6 +11,8 @@ type RegisterBody = {
   thumbnailUrl?: string;
   pdfKey?: string;
   thumbnailKey?: string;
+  pdfBase64?: string;
+  thumbnailBase64?: string;
   tags?: string[];
 };
 
@@ -99,8 +101,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const { env } = await getCloudflareContext({ async: true });
   const db = (env as CloudflareEnv & { DB?: D1Database }).DB;
+  const bucket = (env as CloudflareEnv & { DRILL_FILES?: R2Bucket }).DRILL_FILES;
   if (!db) {
     return NextResponse.json({ message: "Missing D1 binding `DB`" }, { status: 500 });
+  }
+  if (!bucket) {
+    return NextResponse.json({ message: "Missing R2 binding `DRILL_FILES`" }, { status: 500 });
+  }
+
+  const pdfKey = normalizeText(payload.pdfKey);
+  const thumbnailKey = normalizeText(payload.thumbnailKey);
+  const pdfBase64 = normalizeText(payload.pdfBase64);
+  const thumbnailBase64 = normalizeText(payload.thumbnailBase64);
+
+  if (pdfBase64 && pdfKey) {
+    await bucket.put(pdfKey, Uint8Array.from(Buffer.from(pdfBase64, "base64")), {
+      httpMetadata: { contentType: "application/pdf" },
+    });
+  }
+  if (thumbnailBase64 && thumbnailKey) {
+    await bucket.put(thumbnailKey, Uint8Array.from(Buffer.from(thumbnailBase64, "base64")), {
+      httpMetadata: { contentType: "image/png" },
+    });
   }
 
   const existing = await db

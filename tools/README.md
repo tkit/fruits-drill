@@ -2,7 +2,7 @@
 
 ## 概要
 
-PDFドリルファイルをアップロードし、サムネイル生成とSupabaseへのデータ登録（DB登録 + Storageアップロード）を自動化するCLIツールです。
+PDFドリルファイルをアップロードし、サムネイル生成とCloudflare側管理APIへの登録を自動化するCLIツールです。
 
 ## 前提条件
 
@@ -36,31 +36,27 @@ go build -o ../bin/fruits-cli main.go
 `tools/.env` ファイルを作成して以下の内容を記述します。
 
 ```bash
-SUPABASE_URL=https://<your-project-id>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
-SUPABASE_URL=https://<your-project-id>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
-SUPABASE_BUCKET_NAME=drills # Optional (default behavior might vary if not set, but good to include)
+ADMIN_API_BASE_URL=https://fruits-drill.stdy.workers.dev
+ADMIN_API_TOKEN=<admin-api-token>
 ```
 
 **必須項目:**
 
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `ADMIN_API_BASE_URL`
+- `ADMIN_API_TOKEN`
 
 **Configファイル (config.yaml):**
 実行時に `-c config.yaml` で指定可能です。
 
 ```yaml
-supabase_url: "https://<your-project-id>.supabase.co"
-supabase_service_role_key: "<your-service-role-key>"
-supabase_bucket_name: "drills"
+admin_api_base_url: "https://fruits-drill.stdy.workers.dev"
+admin_api_token: "<admin-api-token>"
 ```
 
 **必須項目:**
 
-- `supabase_url`
-- `supabase_service_role_key`
+- `admin_api_base_url`
+- `admin_api_token`
 
 ### コマンド
 
@@ -95,7 +91,7 @@ supabase_bucket_name: "drills"
 
 #### 3. ドリルの削除
 
-指定したタイトルのドリルを削除します。関連するPDF/サムネイルファイルと、そのドリルでしか使われていないタグも自動的に削除されます。
+指定したタイトルのドリルを削除します。関連するPDF/サムネイルファイルも管理API経由で削除されます。
 
 ```bash
 # 対話的に削除 (確認メッセージが表示されます)

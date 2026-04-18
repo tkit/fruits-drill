@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
+	"github.com/tkit/fruits-drill/tools/internal/adminapi"
 	"github.com/tkit/fruits-drill/tools/internal/config"
 )
 
@@ -20,7 +21,7 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "fruits-cli",
 	Short: "Upload and register PDF drills",
-	Long:  `Scans for PDF files (or accepts file arguments), generates thumbnails, uploads to Supabase Storage, and registers to Supabase DB.`,
+	Long:  `Scans PDF files, generates thumbnails, and registers drills via the Cloudflare admin API.`,
 }
 
 func Execute() {
@@ -44,21 +45,14 @@ func loadConfig() (*config.Config, error) {
 }
 
 func revalidate(cfg *config.Config, tag string) {
-	if cfg.AppURL == "" || cfg.RevalidateToken == "" {
-		fmt.Println("[INFO] Skipping revalidation: app_url or revalidate_token not set.")
+	if cfg.AdminAPIBaseURL == "" || cfg.AdminAPIToken == "" {
+		fmt.Println("[INFO] Skipping revalidation: admin_api_base_url or admin_api_token not set.")
 		return
 	}
 
-	url := fmt.Sprintf("%s/api/revalidate?tag=%s&secret=%s", cfg.AppURL, tag, cfg.RevalidateToken)
-	resp, err := http.Get(url)
-	if err != nil {
+	client := adminapi.NewClient(cfg.AdminAPIBaseURL, cfg.AdminAPIToken)
+	if err := client.Revalidate(context.Background(), tag); err != nil {
 		fmt.Printf("[WARNING] Failed to request revalidation: %v\n", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		fmt.Printf("[WARNING] Revalidation failed with status: %s\n", resp.Status)
 		return
 	}
 
