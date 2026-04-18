@@ -1,7 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
-
 export const alt = "ふるーつドリル - 小学生向け無料学習ドリル";
 export const size = {
   width: 1200,

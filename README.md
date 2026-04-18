@@ -9,7 +9,6 @@
 - **UI Components**: shadcn/ui, Lucide React
 - **Backend / DB**: Supabase (PostgreSQL, Storage)
 - **Deployment**: Vercel
-- **Observability**: Grafana Faro Web SDK
 - **Tooling**: Go (CLI for content management)
 
 ## 📁 Project Structure
@@ -34,18 +33,6 @@
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-
-# Observability (Grafana Faro)
-NEXT_PUBLIC_FARO_URL=https://<collector-url>
-NEXT_PUBLIC_FARO_APP_NAME=fruits-drill
-NEXT_PUBLIC_FARO_APP_VERSION=1.0.0
-NEXT_PUBLIC_FARO_APP_ENV=development
-
-# Source Map Upload (Optional, for Build)
-FARO_SOURCEMAP_ENDPOINT=https://faro-api-prod-ap-northeast-0.grafana.net/faro/api/v1
-FARO_STACK_ID=<stack-id>
-FARO_APP_ID=<app-id>
-GRAFANA_API_KEY=<service-account-token>
 ```
 
 **CLI Tool (`tools/.env`)**
@@ -64,6 +51,24 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser.
+
+### 3.5 Preview / Deploy on Cloudflare Workers
+
+This project can be previewed and deployed on Cloudflare Workers using OpenNext.
+
+```bash
+# 1) (First time only) Login to Cloudflare
+npx wrangler login
+
+# 2) Generate Worker env type definitions (optional but recommended)
+npm run cf-typegen
+
+# 3) Preview on local Workers runtime
+npm run preview
+
+# 4) Deploy to your *.workers.dev subdomain
+npm run deploy
+```
 
 ### 4. Manage Content (CLI)
 

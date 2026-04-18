@@ -83,9 +83,8 @@ export default function AboutPage() {
         </h2>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 leading-relaxed text-sm">
           <p className="text-slate-600">
-            当サイトでは、サービスの質の向上とサイトの利用状況を把握するために、アクセス解析ツール（Grafana
-            Faro, Vercel Speed Insights）を使用しています。
-            これにより、お使いのブラウザやデバイスの種類、アクセス日時などの匿名の利用データを収集していますが、これらは個人を特定するものではありません。
+            当サイトでは、サービス品質向上と利用状況把握のためにアクセス解析ツールを使用する場合があります。
+            その際に収集される情報は、ブラウザやデバイスの種類、アクセス日時などの匿名データであり、個人を特定するものではありません。
           </p>
         </div>
       </section>

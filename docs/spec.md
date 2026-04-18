@@ -14,7 +14,6 @@
 - **Icons**: **Lucide React**
 - **Database / CMS / Storage**: **Supabase** (PostgreSQL / Storage)
 - **Deployment**: Vercel
-- **Monitoring**: **Grafana Faro** (Web SDK)
 - **Performance**: **Vercel Speed Insights**
 - **Testing**: **Jest**, **React Testing Library**
 - **Admin Tool**: **Go (Golang)**
