@@ -58,7 +58,10 @@ if [[ "$legacy_count" != "0" ]]; then
 fi
 
 echo "[CHECK] R2 objects existence"
-mapfile -t keys < <(
+keys=()
+while IFS= read -r line; do
+  keys+=("$line")
+done < <(
   jq -r '
     .[] | [.pdf_url, .thumbnail_url] | .[] |
     select(type == "string") |

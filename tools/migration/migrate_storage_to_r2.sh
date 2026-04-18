@@ -20,7 +20,10 @@ DRILLS_JSON="$EXPORT_DIR/drills.json"
 
 mkdir -p "$TMP_DIR"
 
-mapfile -t entries < <(
+entries=()
+while IFS= read -r line; do
+  entries+=("$line")
+done < <(
   jq -r --arg bucket "$SUPABASE_BUCKET_NAME" '
     .[] | [.pdf_url, .thumbnail_url] | .[] |
     select(type == "string") |
