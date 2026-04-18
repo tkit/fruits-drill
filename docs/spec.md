@@ -13,8 +13,7 @@
 - **Styling**: Tailwind CSS, shadcn/ui (Base Color: Slate)
 - **Icons**: **Lucide React**
 - **Database / CMS / Storage**: **Supabase** (PostgreSQL / Storage)
-- **Deployment**: Vercel
-- **Performance**: **Vercel Speed Insights**
+- **Deployment**: Cloudflare Workers (OpenNext)
 - **Testing**: **Jest**, **React Testing Library**
 - **Admin Tool**: **Go (Golang)**
 

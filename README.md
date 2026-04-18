@@ -8,7 +8,7 @@
 - **Frontend**: Next.js (App Router), TypeScript, Tailwind CSS
 - **UI Components**: shadcn/ui, Lucide React
 - **Backend / DB**: Supabase (PostgreSQL, Storage)
-- **Deployment**: Vercel
+- **Deployment**: Cloudflare Workers (OpenNext)
 - **Tooling**: Go (CLI for content management)
 
 ## 📁 Project Structure
