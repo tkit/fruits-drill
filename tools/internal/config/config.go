@@ -15,9 +15,6 @@ type Config struct {
 
 	AdminAPIBaseURL string `yaml:"admin_api_base_url"`
 	AdminAPIToken   string `yaml:"admin_api_token"`
-	// Backward-compatible aliases
-	AppURL          string `yaml:"app_url"`
-	RevalidateToken string `yaml:"revalidate_token"`
 }
 
 func Load() (*Config, error) {
@@ -28,16 +25,6 @@ func Load() (*Config, error) {
 		SupabaseBucketName:     os.Getenv("SUPABASE_BUCKET_NAME"),
 		AdminAPIBaseURL:        os.Getenv("ADMIN_API_BASE_URL"),
 		AdminAPIToken:          os.Getenv("ADMIN_API_TOKEN"),
-		AppURL:                 os.Getenv("APP_URL"),
-		RevalidateToken:        os.Getenv("REVALIDATE_TOKEN"),
-	}
-
-	// Compatibility fallback to old names.
-	if cfg.AdminAPIBaseURL == "" {
-		cfg.AdminAPIBaseURL = cfg.AppURL
-	}
-	if cfg.AdminAPIToken == "" {
-		cfg.AdminAPIToken = cfg.RevalidateToken
 	}
 	return cfg, nil
 }
