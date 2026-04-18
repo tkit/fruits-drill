@@ -1,8 +1,10 @@
 import type { MetadataRoute } from "next";
 import { getDrills } from "../features/drills/api/getDrills";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fruits-drill.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fruits-drill.stdy.workers.dev";
   const drills = await getDrills();
 
   const drillUrls: MetadataRoute.Sitemap = drills.map((drill) => ({

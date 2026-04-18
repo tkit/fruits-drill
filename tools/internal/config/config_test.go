@@ -9,12 +9,15 @@ import (
 
 func TestLoad_Env(t *testing.T) {
 	// Setup env
-	os.Setenv("SUPABASE_BUCKET_NAME", "test-bucket")
-	defer os.Unsetenv("SUPABASE_BUCKET_NAME")
+	os.Setenv("ADMIN_API_BASE_URL", "https://example.workers.dev")
+	os.Setenv("ADMIN_API_TOKEN", "test-token")
+	defer os.Unsetenv("ADMIN_API_BASE_URL")
+	defer os.Unsetenv("ADMIN_API_TOKEN")
 
 	cfg, err := Load()
 	assert.NoError(t, err)
-	assert.Equal(t, "test-bucket", cfg.SupabaseBucketName)
+	assert.Equal(t, "https://example.workers.dev", cfg.AdminAPIBaseURL)
+	assert.Equal(t, "test-token", cfg.AdminAPIToken)
 }
 
 func TestLoadFromFile(t *testing.T) {
@@ -26,14 +29,14 @@ func TestLoadFromFile(t *testing.T) {
 	defer os.Remove(f.Name())
 
 	content := `
-supabase_bucket_name: "yaml-bucket"
-supabase_url: "https://example.supabase.co"
+admin_api_base_url: "https://example.workers.dev"
+admin_api_token: "yaml-token"
 `
 	f.WriteString(content)
 	f.Close()
 
 	cfg, err := LoadFromFile(f.Name())
 	assert.NoError(t, err)
-	assert.Equal(t, "yaml-bucket", cfg.SupabaseBucketName)
-	assert.Equal(t, "https://example.supabase.co", cfg.SupabaseURL)
+	assert.Equal(t, "https://example.workers.dev", cfg.AdminAPIBaseURL)
+	assert.Equal(t, "yaml-token", cfg.AdminAPIToken)
 }

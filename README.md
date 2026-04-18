@@ -7,9 +7,8 @@
 
 - **Frontend**: Next.js (App Router), TypeScript, Tailwind CSS
 - **UI Components**: shadcn/ui, Lucide React
-- **Backend / DB**: Supabase (PostgreSQL, Storage)
-- **Deployment**: Vercel
-- **Observability**: Grafana Faro Web SDK
+- **Backend / DB**: Cloudflare D1 (SQLite), R2 (planned migration target)
+- **Deployment**: Cloudflare Workers (OpenNext)
 - **Tooling**: Go (CLI for content management)
 
 ## 📁 Project Structure
@@ -32,20 +31,8 @@
 **Web App (`.env.local`)**
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-
-# Observability (Grafana Faro)
-NEXT_PUBLIC_FARO_URL=https://<collector-url>
-NEXT_PUBLIC_FARO_APP_NAME=fruits-drill
-NEXT_PUBLIC_FARO_APP_VERSION=1.0.0
-NEXT_PUBLIC_FARO_APP_ENV=development
-
-# Source Map Upload (Optional, for Build)
-FARO_SOURCEMAP_ENDPOINT=https://faro-api-prod-ap-northeast-0.grafana.net/faro/api/v1
-FARO_STACK_ID=<stack-id>
-FARO_APP_ID=<app-id>
-GRAFANA_API_KEY=<service-account-token>
+NEXT_PUBLIC_BASE_URL=https://fruits-drill.stdy.workers.dev
+ADMIN_API_TOKEN=<local-dev-admin-token>
 ```
 
 **CLI Tool (`tools/.env`)**
@@ -64,6 +51,69 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser.
+
+### 3.5 Preview / Deploy on Cloudflare Workers
+
+This project can be previewed and deployed on Cloudflare Workers using OpenNext.
+
+```bash
+# 1) (First time only) Login to Cloudflare
+npx wrangler login
+
+# 2) Generate Worker env type definitions (optional but recommended)
+npm run cf-typegen
+
+# 3) Preview on local Workers runtime
+npm run preview
+
+# 4) Deploy to your *.workers.dev subdomain
+npm run deploy
+```
+
+### 3.6 D1 Schema Initialization
+
+Set your actual D1 database ID in `wrangler.toml`, then apply schema:
+
+```bash
+npx wrangler d1 execute fruits-drill --remote --file docs/migrations/001_create_d1_schema.sql
+```
+
+### 3.7 R2 Bucket Setup
+
+Create the R2 bucket used for drill files and set the real bucket names in `wrangler.toml`.
+
+```bash
+npx wrangler r2 bucket create fruits-drill
+npx wrangler r2 bucket create fruits-drill-preview
+```
+
+The app supports two storage representations in D1:
+
+- Full URL (e.g. legacy Supabase URL)
+- R2 key format (`r2://pdf/<sha256>.pdf`, `r2://thumbnail/<sha256>.png`)
+
+When a value is stored as an R2 key, it is served via:
+
+- `/api/files/<object-key>`
+
+### 3.8 Admin API Token
+
+Set the admin API token in Cloudflare as a Worker secret.
+
+```bash
+npx wrangler secret put ADMIN_API_TOKEN
+```
+
+### 3.9 Admin API Endpoints
+
+- `POST /api/admin/drills/register`
+- `POST /api/admin/drills/delete`
+- `POST /api/revalidate`
+
+Authentication:
+
+- `Authorization: Bearer <ADMIN_API_TOKEN>`
+- `x-admin-token: <ADMIN_API_TOKEN>`
 
 ### 4. Manage Content (CLI)
 

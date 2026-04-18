@@ -1,0 +1,21 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+main = ".open-next/worker.js"
+name = "fruits-drill"
+compatibility_date = "2026-04-18"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+preview_urls = false
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fruits-drill"
+database_id = "c7d639b8-0931-4eeb-935e-68fda6f9426c"
+
+[[r2_buckets]]
+binding = "DRILL_FILES"
+bucket_name = "fruits-drill"
+preview_bucket_name = "fruits-drill-preview"

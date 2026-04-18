@@ -1,8 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getDrill } from "@/features/drills/api/getDrills";
 
-export const runtime = "edge";
-
 export const alt = "ふるーつドリル";
 export const size = {
   width: 1200,
