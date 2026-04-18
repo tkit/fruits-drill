@@ -78,6 +78,24 @@ Set your actual D1 database ID in `wrangler.toml`, then apply schema:
 npx wrangler d1 execute fruits-drill --remote --file docs/migrations/001_create_d1_schema.sql
 ```
 
+### 3.7 R2 Bucket Setup
+
+Create the R2 bucket used for drill files and set the real bucket names in `wrangler.toml`.
+
+```bash
+npx wrangler r2 bucket create fruits-drill
+npx wrangler r2 bucket create fruits-drill-preview
+```
+
+The app supports two storage representations in D1:
+
+- Full URL (e.g. legacy Supabase URL)
+- R2 key format (`r2://pdf/<sha256>.pdf`, `r2://thumbnail/<sha256>.png`)
+
+When a value is stored as an R2 key, it is served via:
+
+- `/api/files/<object-key>`
+
 ### 4. Manage Content (CLI)
 
 See [tools/README.md](tools/README.md) for details on how to register drill PDFs.

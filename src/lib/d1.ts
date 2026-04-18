@@ -1,5 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { Drill } from "@/features/drills/types";
+import { resolveDrillAssetUrl } from "@/lib/asset-url";
 
 type DrillListRow = {
   id: string;
@@ -71,9 +72,9 @@ export async function fetchDrillsFromD1(): Promise<Drill[]> {
     id: row.id,
     title: row.title,
     thumbnail: {
-      url: row.thumbnail_url,
+      url: resolveDrillAssetUrl(row.thumbnail_url),
     },
-    pdf: row.pdf_url,
+    pdf: resolveDrillAssetUrl(row.pdf_url),
     tags: parseTags(row.tags_concat),
     description: undefined,
     publishedAt: row.created_at ?? undefined,
@@ -115,9 +116,9 @@ export async function fetchDrillFromD1(contentId: string): Promise<Drill | null>
     id: row.id,
     title: row.title,
     thumbnail: {
-      url: row.thumbnail_url,
+      url: resolveDrillAssetUrl(row.thumbnail_url),
     },
-    pdf: row.pdf_url,
+    pdf: resolveDrillAssetUrl(row.pdf_url),
     description: row.description ?? undefined,
     tags: parseTags(row.tags_concat),
     publishedAt: row.created_at ?? undefined,
