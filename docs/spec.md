@@ -33,21 +33,21 @@
 
 ### `drills` テーブル
 
-| カラム名        | 型        | 制約                            | 備考                      |
-| --------------- | --------- | ------------------------------- | ------------------------- |
-| `id`            | text      | PK                              |                           |
-| `title`         | text      | NOT NULL                        |                           |
-| `description`   | text      |                                 |                           |
-| `pdf_url`       | text      | NOT NULL                        | Supabase Storageの公開URL |
-| `thumbnail_url` | text      | NOT NULL                        | Supabase Storageの公開URL |
-| `created_at`    | text      |                                 | ISO8601文字列            |
+| カラム名        | 型   | 制約     | 備考                      |
+| --------------- | ---- | -------- | ------------------------- |
+| `id`            | text | PK       |                           |
+| `title`         | text | NOT NULL |                           |
+| `description`   | text |          |                           |
+| `pdf_url`       | text | NOT NULL | Supabase Storageの公開URL |
+| `thumbnail_url` | text | NOT NULL | Supabase Storageの公開URL |
+| `created_at`    | text |          | ISO8601文字列             |
 
 ### `tags` テーブル
 
-| カラム名 | 型   | 制約                            | 備考                   |
-| -------- | ---- | ------------------------------- | ---------------------- |
-| `id`     | text | PK                              |                        |
-| `name`   | text | NOT NULL, UNIQUE                | タグ名 (小1, 算数など) |
+| カラム名 | 型   | 制約             | 備考                   |
+| -------- | ---- | ---------------- | ---------------------- |
+| `id`     | text | PK               |                        |
+| `name`   | text | NOT NULL, UNIQUE | タグ名 (小1, 算数など) |
 
 ### `drill_tags` テーブル (中間テーブル)
 
