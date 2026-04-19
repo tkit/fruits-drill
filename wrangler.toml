@@ -28,3 +28,21 @@ database_id = "c7d639b8-0931-4eeb-935e-68fda6f9426c"
 binding = "DRILL_FILES"
 bucket_name = "fruits-drill"
 preview_bucket_name = "fruits-drill-preview"
+
+[env.preview]
+workers_dev = true
+preview_urls = true
+
+[env.preview.assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "fruits-drill"
+database_id = "c7d639b8-0931-4eeb-935e-68fda6f9426c"
+
+[[env.preview.r2_buckets]]
+binding = "DRILL_FILES"
+bucket_name = "fruits-drill"
+preview_bucket_name = "fruits-drill-preview"
