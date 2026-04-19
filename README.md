@@ -121,7 +121,3 @@ See [tools/README.md](tools/README.md) for details on how to register drill PDFs
 make go-build
 ./bin/fruits-cli register ./sample/drill.pdf
 ```
-
-### 5. One-time Data Migration (Supabase -> D1/R2)
-
-See [tools/migration/README.md](tools/migration/README.md) for full migration steps and verification scripts.

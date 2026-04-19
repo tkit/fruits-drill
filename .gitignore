@@ -45,6 +45,3 @@ next-env.d.ts
 # go
 bin/
 tools/fruits-cli
-tools/migration/tmp/
-tools/migration/export/*.json
-tools/migration/export/002_import_data.sql
