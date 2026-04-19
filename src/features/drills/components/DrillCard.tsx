@@ -30,7 +30,6 @@ export const DrillCard = memo(({ drill, priority = false, queryParams = "" }: Pr
           src={drill.thumbnail.url}
           alt={drill.title}
           fill
-          unoptimized
           priority={priority}
           className="object-cover object-left-top transition-transform duration-500 scale-100 group-hover:scale-110"
           sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
