@@ -5,10 +5,19 @@ compatibility_date = "2026-04-18"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 preview_urls = false
+upload_source_maps = true
 
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
+
+[observability.traces]
+enabled = true
+destinations = ["grafana-traces"]
+
+[observability.logs]
+enabled = true
+destinations = ["grafana-logs"]
 
 [[d1_databases]]
 binding = "DB"

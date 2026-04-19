@@ -9,6 +9,7 @@
 - **UI Components**: shadcn/ui, Lucide React
 - **Backend / DB**: Cloudflare D1 (SQLite), R2
 - **Deployment**: Cloudflare Workers (OpenNext)
+- **Observability**: Grafana Faro, Cloudflare Source Maps
 - **Tooling**: Go (CLI for content management)
 
 ## 📁 Project Structure
@@ -32,6 +33,14 @@
 ```bash
 NEXT_PUBLIC_BASE_URL=https://fruits-drill.stdy.workers.dev
 ADMIN_API_TOKEN=<local-dev-admin-token>
+
+# Optional: Grafana Faro (browser)
+NEXT_PUBLIC_FARO_URL=https://<your-faro-collector>.grafana.net/collect/<token>
+NEXT_PUBLIC_FARO_APP_NAME=fruits-drill
+NEXT_PUBLIC_FARO_APP_VERSION=local-dev
+NEXT_PUBLIC_FARO_APP_ENV=development
+# Set to true if you want errors/measurements only
+# NEXT_PUBLIC_FARO_DISABLE_TRACING=true
 ```
 
 **CLI Tool (`tools/.env`)**
@@ -50,6 +59,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser.
 
+If you want to load deploy-only values from a file, you can prepare `.env.prod` and use the dedicated scripts below.
+
 ### 3.5 Preview / Deploy on Cloudflare Workers
 
 This project can be previewed and deployed on Cloudflare Workers using OpenNext.
@@ -65,8 +76,37 @@ npm run cf-typegen
 npm run preview
 
 # 4) Deploy to your *.workers.dev subdomain
+#    (reads build-time vars from .env.prod)
 npm run deploy
 ```
+
+### 3.5.1 Grafana Faro Reintroduction Notes
+
+This app can send browser-side telemetry to Grafana Faro again after the Cloudflare migration.
+
+- Runtime collection is enabled only when `NEXT_PUBLIC_FARO_URL` is set.
+- Tracing is enabled by default and can be disabled with `NEXT_PUBLIC_FARO_DISABLE_TRACING=true`.
+- Worker-side stack traces are handled separately by Cloudflare with `upload_source_maps = true` in `wrangler.toml`.
+
+For browser-side de-minified stack traces in Grafana Frontend Observability, set these build-time environment variables before `npm run deploy` or `npm run build`:
+
+```bash
+FARO_SOURCEMAP_ENDPOINT=https://<your-faro-collector>.grafana.net/faro/api/v1
+FARO_SOURCEMAP_APP_ID=<frontend-observability-app-id>
+FARO_SOURCEMAP_STACK_ID=<grafana-stack-id>
+FARO_SOURCEMAP_API_KEY=<grafana-access-policy-token>
+
+# Optional
+FARO_SOURCEMAP_BUNDLE_ID=<release-or-commit-sha>
+FARO_SOURCEMAP_VERBOSE=true
+```
+
+Notes:
+
+- `FARO_SOURCEMAP_API_KEY` is a build secret. Do not expose it as a public runtime variable.
+- The Grafana token needs `sourcemaps:read`, `sourcemaps:write`, and `sourcemaps:delete`.
+- The webpack upload plugin runs only for production client builds, so local development is unaffected unless you explicitly configure it.
+- `npm run deploy` loads `.env.prod` via `dotenv-cli`, which is useful for keeping build-time Faro values out of your interactive shell history while keeping the production entrypoint to a single command.
 
 ### 3.6 D1 Schema Initialization
 

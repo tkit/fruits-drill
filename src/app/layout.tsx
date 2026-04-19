@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Zen_Maru_Gothic } from "next/font/google";
 import "./globals.css";
+import { FaroInitializer } from "@/components/FaroInitializer";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
@@ -57,6 +58,7 @@ export default function RootLayout({
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8">{children}</main>
         {modal}
         <Footer />
+        <FaroInitializer />
       </body>
     </html>
   );
