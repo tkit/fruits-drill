@@ -5,17 +5,10 @@ if (process.env.NODE_ENV === "development") {
   initOpenNextCloudflareForDev();
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fruits-drill.stdy.workers.dev";
-const baseHostname = new URL(baseUrl).hostname;
-
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: baseHostname,
-      },
-    ],
+    loader: "custom",
+    loaderFile: "./src/lib/cloudflare-image-loader.ts",
   },
 };
 

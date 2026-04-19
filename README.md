@@ -113,6 +113,14 @@ Authentication:
 - `Authorization: Bearer <ADMIN_API_TOKEN>`
 - `x-admin-token: <ADMIN_API_TOKEN>`
 
+### 3.10 Image Optimization on Cloudflare
+
+`next/image` uses a custom loader (`src/lib/cloudflare-image-loader.ts`) and routes optimized requests via:
+
+- `/cdn-cgi/image/<options>/<src>`
+
+In local development (`npm run dev`), the loader falls back to direct image URLs.
+
 ### 4. Manage Content (CLI)
 
 See [tools/README.md](tools/README.md) for details on how to register drill PDFs.
