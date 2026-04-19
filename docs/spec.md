@@ -33,14 +33,14 @@
 
 ### `drills` テーブル
 
-| カラム名        | 型   | 制約     | 備考                      |
-| --------------- | ---- | -------- | ------------------------- |
-| `id`            | text | PK       |                           |
-| `title`         | text | NOT NULL |                           |
-| `description`   | text |          |                           |
-| `pdf_url`       | text | NOT NULL | Supabase Storageの公開URL |
-| `thumbnail_url` | text | NOT NULL | Supabase Storageの公開URL |
-| `created_at`    | text |          | ISO8601文字列             |
+| カラム名        | 型   | 制約     | 備考                              |
+| --------------- | ---- | -------- | --------------------------------- |
+| `id`            | text | PK       |                                   |
+| `title`         | text | NOT NULL |                                   |
+| `description`   | text |          |                                   |
+| `pdf_url`       | text | NOT NULL | R2キー（`r2://...`）または公開URL |
+| `thumbnail_url` | text | NOT NULL | R2キー（`r2://...`）または公開URL |
+| `created_at`    | text |          | ISO8601文字列                     |
 
 ### `tags` テーブル
 
@@ -102,16 +102,16 @@
 - PDFの1ページ目を画像（JPG/PNG）として抽出・保存する。
 - 外部コマンド (`imagemagick`) を使用する。
 
-3. **Supabase Storage アップロード**:
+3. **Cloudflare Admin API 経由で登録**:
 
-- PDFファイルと生成したサムネイル画像を `drills` バケットにアップロードする。
-- ファイル名由来のトラブルを避けるため、パスにはUUIDを使用する (`pdf/<uuid>.pdf`, `thumbnail/<uuid>.png`)。
-- **Idempotency**: 同一ファイルが登録される場合、既存のStorageオブジェクトを再利用し、二重アップロードを防ぐ。
+- PDFファイルと生成したサムネイル画像を `POST /api/admin/drills/register` に送信する。
+- ストレージキーは SHA-256 ハッシュ由来の決定的キーを使用する（`pdf/<hash>.pdf`, `thumbnail/<hash>.png`）。
+- **Idempotency**: 同一コンテンツ再登録時に重複作成しない。
 
-4. **Supabase Database 登録**:
+4. **D1 への登録**:
 
-- アップロード済みファイルのURLを使用し、`drills`, `tags`, `drill_tags` テーブルにデータを登録する。
-- **タグの自動登録**: 指定されたタグが存在しない場合は自動的に作成 (`Upsert`) する機能を持つ。
+- 管理API側で `drills`, `tags`, `drill_tags` テーブルへ登録/更新を行う。
+- **タグの自動登録**: 指定されたタグが存在しない場合は作成して関連付ける。
 
 5. **設定とオプション**:
 
@@ -122,8 +122,8 @@
 
 6. **削除機能 (`delete` サブコマンド)**:
 
-- `fruits-cli delete -title "Drill Title"` のようにタイトル指定で削除可能とする。
-- DBレコード (`drills`, `drill_tags`) および Storage上のファイル (PDF, Thumbnail) を削除する。
+- `fruits-cli delete "Drill Title"` のようにタイトル指定で削除可能とする。
+- 管理API経由で DBレコード (`drills`, `drill_tags`) と Storage上のファイル (PDF, Thumbnail) を削除する。
 - 他で使用されていないタグがあれば `tags` テーブルからも削除する。
 
 7. **エラーハンドリング**:
@@ -137,6 +137,5 @@
 - `ADMIN_API_TOKEN`
 
 - CLIツール用 (tools/.env):
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY` (安全な場所でのみ使用)
-- `SUPABASE_BUCKET_NAME` (例: `drills`)
+- `ADMIN_API_BASE_URL`
+- `ADMIN_API_TOKEN`

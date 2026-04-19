@@ -8,11 +8,6 @@ import (
 )
 
 type Config struct {
-	// Deprecated Supabase settings (kept for backward-compatible parsing only).
-	SupabaseURL            string `yaml:"supabase_url"`
-	SupabaseServiceRoleKey string `yaml:"supabase_service_role_key"`
-	SupabaseBucketName     string `yaml:"supabase_bucket_name"`
-
 	AdminAPIBaseURL string `yaml:"admin_api_base_url"`
 	AdminAPIToken   string `yaml:"admin_api_token"`
 }
@@ -20,11 +15,8 @@ type Config struct {
 func Load() (*Config, error) {
 	// Defaults from Env
 	cfg := &Config{
-		SupabaseURL:            os.Getenv("SUPABASE_URL"),
-		SupabaseServiceRoleKey: os.Getenv("SUPABASE_SERVICE_ROLE_KEY"),
-		SupabaseBucketName:     os.Getenv("SUPABASE_BUCKET_NAME"),
-		AdminAPIBaseURL:        os.Getenv("ADMIN_API_BASE_URL"),
-		AdminAPIToken:          os.Getenv("ADMIN_API_TOKEN"),
+		AdminAPIBaseURL: os.Getenv("ADMIN_API_BASE_URL"),
+		AdminAPIToken:   os.Getenv("ADMIN_API_TOKEN"),
 	}
 	return cfg, nil
 }

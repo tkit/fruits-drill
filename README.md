@@ -7,7 +7,7 @@
 
 - **Frontend**: Next.js (App Router), TypeScript, Tailwind CSS
 - **UI Components**: shadcn/ui, Lucide React
-- **Backend / DB**: Cloudflare D1 (SQLite), R2 (planned migration target)
+- **Backend / DB**: Cloudflare D1 (SQLite), R2
 - **Deployment**: Cloudflare Workers (OpenNext)
 - **Tooling**: Go (CLI for content management)
 
@@ -21,10 +21,9 @@
 
 ### 1. Prerequisites
 
-- Node.js 18+
+- Node.js 24+
 - Go 1.25+
 - ImageMagick (for CLI thumbnail generation)
-- Supabase Project
 
 ### 2. Environment Setup
 
@@ -88,7 +87,7 @@ npx wrangler r2 bucket create fruits-drill-preview
 
 The app supports two storage representations in D1:
 
-- Full URL (e.g. legacy Supabase URL)
+- Full URL (legacy data互換)
 - R2 key format (`r2://pdf/<sha256>.pdf`, `r2://thumbnail/<sha256>.png`)
 
 When a value is stored as an R2 key, it is served via:
