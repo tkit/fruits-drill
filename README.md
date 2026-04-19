@@ -115,11 +115,10 @@ Authentication:
 
 ### 3.10 Image Optimization on Cloudflare
 
-`next/image` uses a custom loader (`src/lib/cloudflare-image-loader.ts`) and routes optimized requests via:
+`next/image` uses a custom loader and serves original image URLs directly.
 
-- `/cdn-cgi/image/<options>/<src>`
-
-In local development (`npm run dev`), the loader falls back to direct image URLs.
+- This avoids `/_next/image` and `/cdn-cgi/image` incompatibilities on `workers.dev`.
+- If you move to an environment that supports Cloudflare image transformations, revisit this loader.
 
 ### 4. Manage Content (CLI)
 
