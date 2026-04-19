@@ -1,9 +1,4 @@
-const DEFAULT_BASE_URL = "https://fruits-drill.stdy.workers.dev";
 const R2_SCHEME = "r2://";
-
-function getBaseUrl(): string {
-  return (process.env.NEXT_PUBLIC_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, "");
-}
 
 export function resolveDrillAssetUrl(rawValue: string): string {
   if (/^https?:\/\//i.test(rawValue)) return rawValue;
@@ -19,7 +14,7 @@ export function resolveDrillAssetUrl(rawValue: string): string {
     .map((segment) => encodeURIComponent(segment))
     .join("/");
 
-  return `${getBaseUrl()}/api/files/${encodedPath}`;
+  return `/api/files/${encodedPath}`;
 }
 
 export function toR2Reference(key: string): string {
