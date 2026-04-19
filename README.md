@@ -75,7 +75,11 @@ npm run cf-typegen
 # 3) Preview on local Workers runtime
 npm run preview
 
-# 4) Deploy to your *.workers.dev subdomain
+# 4) Deploy preview environment
+#    (for local use, export vars first or wrap with `dotenv -e .env.preview --`)
+npm run deploy:preview
+
+# 5) Deploy production to your *.workers.dev subdomain
 #    (reads build-time vars from .env.prod)
 npm run deploy
 ```
@@ -107,6 +111,30 @@ Notes:
 - The Grafana token needs `sourcemaps:read`, `sourcemaps:write`, and `sourcemaps:delete`.
 - The webpack upload plugin runs only for production client builds, so local development is unaffected unless you explicitly configure it.
 - `npm run deploy` loads `.env.prod` via `dotenv-cli`, which is useful for keeping build-time Faro values out of your interactive shell history while keeping the production entrypoint to a single command.
+
+### 3.5.2 GitHub Actions CI/CD
+
+`Web CI` workflow now deploys to Cloudflare only after the CI job succeeds.
+
+- Pull requests targeting `main`: deploy to the Cloudflare `preview` environment
+- Pushes to `main` (including merge commits): deploy to production
+- Changes limited to `tools/**`: the workflow does not trigger, so deploy is skipped
+- Forked pull requests: deploy job is skipped so repository secrets are never used
+
+The deploy job uses `concurrency` to cancel older in-progress deploys for the same branch or pull request.
+
+Required repository secrets:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+
+Setup steps:
+
+1. In GitHub, open `Settings` > `Secrets and variables` > `Actions`.
+2. Add `CLOUDFLARE_ACCOUNT_ID` with your Cloudflare account ID.
+3. Add `CLOUDFLARE_API_TOKEN` with a token that can deploy Workers and access the configured D1 / R2 bindings.
+
+If you want preview deploys to use an isolated D1 database instead of the current shared binding, update the `[[env.preview.d1_databases]]` section in `wrangler.toml` with the preview database ID before enabling the workflow in production use.
 
 ### 3.6 D1 Schema Initialization
 
